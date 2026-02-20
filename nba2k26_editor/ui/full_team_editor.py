@@ -1,379 +1,406 @@
-"""Full team editor window (ported from the monolithic editor)."""
+"""Full team editor window built with Dear PyGui."""
 from __future__ import annotations
 
-import tkinter as tk
-from tkinter import ttk, messagebox
-from typing import Dict
+import threading
+from typing import TYPE_CHECKING, Any, cast
 
-from ..core.config import (
-    PANEL_BG,
-    INPUT_BG,
-    TEXT_PRIMARY,
-    TEXT_SECONDARY,
-    ACCENT_BG,
-    BUTTON_BG,
-    BUTTON_ACTIVE_BG,
-    BUTTON_TEXT,
-    ENTRY_BG,
-    ENTRY_FG,
-    ENTRY_BORDER,
-)
-from ..core.conversions import to_int
+import dearpygui.dearpygui as dpg
+
+from ..core.conversions import to_int as _to_int
 from ..models.data_model import PlayerDataModel
-from ..models.player import Player
 from ..models.schema import FieldMetadata
-from .widgets import bind_mousewheel
+
+if TYPE_CHECKING:
+    pass  # only for type hints
 
 
-class FullTeamEditor(tk.Toplevel):
-    """Tabbed editor window for team offsets."""
+class FullTeamEditor:
+    """Tabbed team editor using Dear PyGui."""
 
-    def __init__(self, parent: tk.Tk, team_index: int, team_name: str, model: PlayerDataModel) -> None:
-        super().__init__(parent)
+    def __init__(self, app, team_index: int, team_name: str, model: PlayerDataModel) -> None:
+        self.app = app
+        self.model = model
         self.team_index = team_index
         self.team_name = team_name
-        self.model = model
-        self.title(f"Edit Team: {team_name}")
-        self.geometry("700x480")
-        self.configure(bg=PANEL_BG)
-        style = ttk.Style(self)
-        try:
-            current_theme = style.theme_use()
-            style.theme_use(current_theme)
-        except Exception:
-            pass
-        style.configure("TeamEditor.TNotebook", background=PANEL_BG, borderwidth=0)
-        style.configure(
-            "TeamEditor.TNotebook.Tab",
-            background=PANEL_BG,
-            foreground=TEXT_SECONDARY,
-            padding=(12, 6),
-        )
-        style.map(
-            "TeamEditor.TNotebook.Tab",
-            background=[("selected", BUTTON_BG), ("active", ACCENT_BG)],
-            foreground=[("selected", TEXT_PRIMARY), ("active", TEXT_PRIMARY)],
-        )
-        style.configure("TeamEditor.TFrame", background=PANEL_BG)
-        try:
-            style.configure(
-                "TeamEditor.TCombobox",
-                fieldbackground=INPUT_BG,
-                background=INPUT_BG,
-                foreground=TEXT_PRIMARY,
-                bordercolor=ACCENT_BG,
-                arrowcolor=TEXT_PRIMARY,
-            )
-        except tk.TclError:
-            style.configure(
-                "TeamEditor.TCombobox",
-                fieldbackground=INPUT_BG,
-                background=INPUT_BG,
-                foreground=TEXT_PRIMARY,
-            )
-        style.map(
-            "TeamEditor.TCombobox",
-            fieldbackground=[("readonly", INPUT_BG)],
-            foreground=[("readonly", TEXT_PRIMARY)],
-        )
-        self.field_vars: dict[str, dict[str, tk.Variable]] = {}
+        self._editor_type = "team"
+        self._closed = False
+        self.field_vars: dict[str, dict[str, int | str]] = {}
         self.field_meta: dict[tuple[str, str], FieldMetadata] = {}
-        self.spin_widgets: dict[tuple[str, str], tk.Spinbox] = {}
+        # Baseline UI-side values loaded from memory. Save should only write fields that
+        # were successfully loaded into the editor and whose UI values differ from this baseline.
+        self._baseline_values: dict[tuple[str, str], object] = {}
         self._unsaved_changes: set[tuple[str, str]] = set()
         self._initializing = True
-        notebook = ttk.Notebook(self, style="TeamEditor.TNotebook")
-        notebook.pack(fill=tk.BOTH, expand=True)
-        team_categories = self.model.get_categories_for_super("Teams") or {}
-        if team_categories:
-            ordered = sorted(team_categories.keys())
-            for cat in ordered:
-                frame = tk.Frame(notebook, bg=PANEL_BG, highlightthickness=0, bd=0)
-                notebook.add(frame, text=cat)
-                self._build_category_tab(frame, cat, team_categories.get(cat))
+        self._loading_values = False
+
+        self.window_tag = dpg.generate_uuid()
+        self.tab_bar_tag = dpg.generate_uuid()
+
+        with dpg.window(
+            label=f"Edit Team: {team_name}",
+            tag=self.window_tag,
+            width=820,
+            height=640,
+            no_collapse=True,
+            on_close=self._on_close,
+        ):
+            self._build_tabs()
+            dpg.add_separator()
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Save", width=100, callback=self._save_all)
+                dpg.add_button(label="Close", width=100, callback=self._on_close)
+
+        editors = getattr(self.app, "full_editors", None)
+        if isinstance(editors, list):
+            editors.append(self)
         else:
-            frame = tk.Frame(notebook, bg=PANEL_BG, highlightthickness=0, bd=0)
-            notebook.add(frame, text="Teams")
-            tk.Label(
-                frame,
-                text="No team categories found in the offsets file.",
-                bg=PANEL_BG,
-                fg=TEXT_SECONDARY,
-            ).pack(padx=12, pady=12, anchor="w")
-        btn_frame = tk.Frame(self, bg=PANEL_BG)
-        btn_frame.pack(fill=tk.X, pady=6)
-        tk.Button(
-            btn_frame,
-            text="Save",
-            command=self._save_all,
-            bg=BUTTON_BG,
-            fg=BUTTON_TEXT,
-            activebackground=BUTTON_ACTIVE_BG,
-            activeforeground=BUTTON_TEXT,
-            relief=tk.FLAT,
-        ).pack(side=tk.LEFT, padx=10)
-        tk.Button(
-            btn_frame,
-            text="Close",
-            command=self.destroy,
-            bg="#B0413E",
-            fg="white",
-            activebackground="#8D2C29",
-            activeforeground="white",
-            relief=tk.FLAT,
-        ).pack(side=tk.LEFT)
-        self._load_all_values()
-        self._initializing = False
+            self.app.full_editors = [self]
 
-    @staticmethod
-    def _is_string_type(dtype: str | None) -> bool:
-        if not dtype:
-            return False
-        dtype_lower = dtype.lower()
-        return any(tag in dtype_lower for tag in ("string", "text", "char", "wstr", "utf", "wide"))
+        self._load_all_values_async()
 
-    @staticmethod
-    def _is_float_type(dtype: str | None) -> bool:
-        return bool(dtype and "float" in dtype.lower())
-
-    @staticmethod
-    def _is_color_type(dtype: str | None) -> bool:
-        if not dtype:
-            return False
-        dtype_lower = dtype.lower()
-        return any(tag in dtype_lower for tag in ("color", "pointer"))
-
-    def _build_category_tab(self, parent: tk.Frame, category_name: str, fields_obj: list | None = None) -> None:
-        fields = fields_obj if isinstance(fields_obj, list) else self.model.categories.get(category_name, [])
-        if not fields:
-            tk.Label(parent, text="No fields found for this category.", bg=PANEL_BG, fg=TEXT_SECONDARY).pack(
-                padx=12, pady=12, anchor="w"
-            )
+    # ------------------------------------------------------------------
+    # UI construction
+    # ------------------------------------------------------------------
+    def _build_tabs(self) -> None:
+        categories = self.model.get_categories_for_super("Teams") or {}
+        ordered = sorted(categories.keys())
+        if not ordered:
+            dpg.add_text("No team categories found in the offsets file.", parent=self.window_tag)
             return
-        container = tk.Frame(parent, bg=PANEL_BG)
-        container.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        canvas = tk.Canvas(container, bg=PANEL_BG, highlightthickness=0)
-        scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
-        scroll_frame = tk.Frame(canvas, bg=PANEL_BG)
-        scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        bind_mousewheel(scroll_frame, canvas)
-        category_vars: dict[str, tk.Variable] = {}
-        self.field_vars[category_name] = category_vars
-        row = 0
-        for field in fields:
-            if not isinstance(field, dict):
-                continue
-            name = str(field.get("name") or f"Field {row + 1}")
-            offset_val = to_int(field.get("offset") or field.get("address") or field.get("hex"))
-            length = to_int(field.get("length") or field.get("size"))
-            if offset_val is None or offset_val < 0 or length is None or length <= 0:
-                continue
-            start_bit = to_int(field.get("startBit") or field.get("start_bit"))
-            field_type = str(field.get("type") or "")
-            requires_deref = bool(field.get("requiresDereference") or field.get("requires_deref"))
-            deref_offset = to_int(field.get("dereferenceAddress") or field.get("deref_offset"))
-            byte_length = to_int(
-                field.get("byteLength")
-                or field.get("byte_length")
-                or field.get("lengthBytes")
-                or field.get("size")
-                or field.get("length")
+        with dpg.tab_bar(tag=self.tab_bar_tag, parent=self.window_tag):
+            for cat in ordered:
+                self._build_category_tab(cat, categories.get(cat))
+
+    def _build_category_tab(self, category_name: str, fields_obj: list | None = None) -> None:
+        fields = fields_obj if isinstance(fields_obj, list) else self.model.categories.get(category_name, [])
+        with dpg.tab(label=category_name, parent=self.tab_bar_tag):
+            if not fields:
+                dpg.add_text("No fields found for this category.")
+                return
+            table = dpg.add_table(
+                header_row=False,
+                resizable=False,
+                policy=dpg.mvTable_SizingStretchProp,
+                scrollX=False,
+                scrollY=False,
             )
-            values_list = field.get("values") if isinstance(field, dict) else None
-            tk.Label(
-                scroll_frame,
-                text=name,
-                bg=PANEL_BG,
-                fg=TEXT_PRIMARY,
-            ).grid(row=row, column=0, sticky=tk.W, padx=(0, 10), pady=2)
-            if values_list:
-                var = tk.IntVar(value=0)
-                combo = ttk.Combobox(
-                    scroll_frame,
-                    values=values_list,
-                    state="readonly",
-                    width=20,
-                    style="TeamEditor.TCombobox",
-                )
-                combo.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-                if values_list:
-                    try:
-                        combo.set(values_list[0])
-                    except Exception:
-                        pass
+            dpg.add_table_column(width_fixed=True, init_width_or_weight=230)
+            dpg.add_table_column(init_width_or_weight=1.0)
+            for row, field in enumerate(fields):
+                if not isinstance(field, dict):
+                    continue
+                name = str(field.get("name") or f"Field {row + 1}")
+                with dpg.table_row(parent=table):
+                    dpg.add_text(name)
+                    control = self._add_field_control(category_name, name, field)
+                self.field_vars.setdefault(category_name, {})[name] = control
 
-                def on_enum_selected(event, v=var, c=combo, vals=values_list):
-                    try:
-                        v.set(vals.index(c.get()))
-                    except Exception:
-                        v.set(0)
+    def _add_field_control(self, category_name: str, field_name: str, field: dict) -> int | str:
+        offset_val = _to_int(field.get("offset") or field.get("address") or field.get("hex"))
+        length = _to_int(field.get("length") or field.get("size"))
+        start_bit = _to_int(field.get("startBit") or field.get("start_bit") or 0)
+        requires_deref = bool(field.get("requiresDereference") or field.get("requires_deref"))
+        deref_offset = _to_int(field.get("dereferenceAddress") or field.get("deref_offset"))
+        byte_length = _to_int(
+            field.get("byteLength")
+            or field.get("byte_length")
+            or field.get("lengthBytes")
+            or field.get("size")
+            or field.get("length")
+            or 0
+        )
+        field_type = str(field.get("type") or "").lower()
+        values_list = field.get("values") if isinstance(field, dict) else None
 
-                combo.bind("<<ComboboxSelected>>", on_enum_selected)
-                widget = combo
-            elif self._is_string_type(field_type):
-                var = tk.StringVar()
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    relief=tk.FLAT,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    highlightthickness=1,
-                    highlightbackground=ENTRY_BORDER,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W + tk.E, padx=(0, 10), pady=2)
-                widget = entry
-            elif self._is_float_type(field_type):
-                var = tk.DoubleVar(value=0.0)
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    relief=tk.FLAT,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    highlightthickness=1,
-                    highlightbackground=ENTRY_BORDER,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W + tk.E, padx=(0, 10), pady=2)
-                widget = entry
-            elif self._is_color_type(field_type):
-                var = tk.StringVar(value="")
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    relief=tk.FLAT,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    highlightthickness=1,
-                    highlightbackground=ENTRY_BORDER,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W + tk.E, padx=(0, 10), pady=2)
-                widget = entry
-            else:
-                var = tk.IntVar(value=0)
-                spin_from = 0
-                try:
-                    spin_to = (1 << length) - 1 if length and length < 31 else 999999
-                except Exception:
-                    spin_to = 999999
-                spin = tk.Spinbox(
-                    scroll_frame,
-                    from_=spin_from,
-                    to=spin_to,
-                    textvariable=var,
-                    width=12,
-                    bg=INPUT_BG,
-                    fg=TEXT_PRIMARY,
-                    highlightbackground=ACCENT_BG,
-                    highlightthickness=1,
-                    relief=tk.FLAT,
-                    insertbackground=TEXT_PRIMARY,
-                )
-                spin.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-                spin.configure(selectbackground=ACCENT_BG, selectforeground=TEXT_PRIMARY)
-                widget = spin
-                self.spin_widgets[(category_name, name)] = spin
-            category_vars[name] = var
-            self.field_meta[(category_name, name)] = FieldMetadata(
+        is_string = any(tag in field_type for tag in ("string", "text", "char", "wstr", "utf", "wide"))
+        is_float = "float" in field_type
+        is_color = any(tag in field_type for tag in ("color", "pointer"))
+        max_raw = 0
+        try:
+            max_raw = (1 << length) - 1 if length and length < 31 else 999999
+        except Exception:
+            max_raw = 999999
+
+        if values_list:
+            items = [str(v) for v in values_list]
+            default_val = items[0] if items else ""
+            control = dpg.add_combo(
+                items=items,
+                default_value=default_val,
+                width=200,
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
                 offset=offset_val,
                 start_bit=start_bit,
                 length=length,
                 requires_deref=requires_deref,
                 deref_offset=deref_offset,
-                widget=widget,
-                values=tuple(str(v) for v in values_list) if values_list else None,
-                data_type=field_type.lower() if isinstance(field_type, str) else field_type,
+                widget=control,
+                values=tuple(items),
+                data_type=field_type or None,
                 byte_length=byte_length,
             )
+            return control
 
-            def on_change(*args, cat=category_name, field_name=name):
-                if getattr(self, "_initializing", False):
+        if is_string:
+            max_chars = length if length and length > 0 else byte_length if byte_length > 0 else 64
+            control = dpg.add_input_text(
+                width=260,
+                max_chars=max_chars,
+                default_value="",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=max_chars,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "string",
+                byte_length=byte_length,
+            )
+            return control
+
+        if is_float:
+            control = dpg.add_input_float(
+                width=160,
+                default_value=0.0,
+                format="%.4f",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=length,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "float",
+                byte_length=byte_length,
+            )
+            return control
+
+        if is_color:
+            control = dpg.add_input_text(
+                width=180,
+                default_value="",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=length,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "pointer",
+                byte_length=byte_length,
+            )
+            return control
+
+        control = dpg.add_input_int(
+            width=140,
+            default_value=0,
+            min_value=0,
+            max_value=max_raw,
+            min_clamped=True,
+            max_clamped=True,
+            callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+        )
+        self.field_meta[(category_name, field_name)] = FieldMetadata(
+            offset=offset_val,
+            start_bit=start_bit,
+            length=length,
+            requires_deref=requires_deref,
+            deref_offset=deref_offset,
+            widget=control,
+            data_type=field_type or "int",
+            byte_length=byte_length,
+        )
+        return control
+
+    # ------------------------------------------------------------------
+    # Data loading / saving
+    # ------------------------------------------------------------------
+    def _load_all_values_async(self) -> None:
+        if self._loading_values:
+            return
+        self._loading_values = True
+
+        def _worker() -> None:
+            values: dict[tuple[str, str], object] = {}
+            for category, fields in self.field_vars.items():
+                for field_name in fields.keys():
+                    meta = self.field_meta.get((category, field_name))
+                    if not meta:
+                        continue
+                    value = self.model.decode_field_value(
+                        entity_type="team",
+                        entity_index=self.team_index,
+                        category=category,
+                        field_name=field_name,
+                        meta=meta,
+                    )
+                    if value is None:
+                        continue
+                    values[(category, field_name)] = value
+
+            def _apply() -> None:
+                if self._closed:
                     return
-                self._unsaved_changes.add((cat, field_name))
+                self._apply_loaded_values(values)
 
-            var.trace_add("write", on_change)
-            row += 1
-        for col in range(2):
-            scroll_frame.grid_columnconfigure(col, weight=1)
+            try:
+                self.app.run_on_ui_thread(_apply)
+            except Exception:
+                _apply()
 
-    def _load_all_values(self) -> None:
-        """Populate all fields from live memory."""
-        for category, fields in self.field_vars.items():
-            for field_name, var in fields.items():
-                meta = self.field_meta.get((category, field_name))
-                if not meta:
-                    continue
-                value = self.model.decode_field_value(
-                    entity_type="team",
-                    entity_index=self.team_index,
-                    category=category,
-                    field_name=field_name,
-                    meta=meta,
-                )
-                if value is None:
-                    continue
-                if meta.values and isinstance(var, tk.IntVar):
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _apply_loaded_values(self, values: dict[tuple[str, str], object]) -> None:
+        baseline_map = getattr(self, "_baseline_values", None)
+        if not isinstance(baseline_map, dict):
+            baseline_map = {}
+            self._baseline_values = baseline_map
+        for (category, field_name), value in values.items():
+            control = self.field_vars.get(category, {}).get(field_name)
+            meta = self.field_meta.get((category, field_name))
+            if control is None or meta is None or not dpg.does_item_exist(control):
+                continue
+            if meta.values:
+                vals = list(meta.values)
+                selection = vals[0] if vals else ""
+                if isinstance(value, str) and value in vals:
+                    selection = value
+                else:
                     try:
-                        idx = to_int(value)
-                        var.set(idx)
-                        widget = meta.widget
-                        vals = list(meta.values)
-                        if isinstance(widget, ttk.Combobox) and 0 <= idx < len(vals):
-                            try:
-                                widget.set(vals[idx])
-                            except Exception:
-                                pass
+                        idx = self._coerce_int(value, default=0)
+                        if 0 <= idx < len(vals):
+                            selection = vals[idx]
+                    except Exception:
+                        pass
+                dpg.set_value(control, selection)
+            else:
+                dtype = (meta.data_type or "").lower()
+                if any(tag in dtype for tag in ("string", "text", "char", "pointer", "wide")):
+                    dpg.set_value(control, "" if value is None else str(value))
+                elif "float" in dtype:
+                    try:
+                        dpg.set_value(control, float(cast(Any, value)))
                     except Exception:
                         pass
                 else:
                     try:
-                        if isinstance(var, tk.StringVar):
-                            var.set(str(value))
-                        elif isinstance(var, tk.DoubleVar):
-                            if isinstance(value, (int, float)):
-                                var.set(float(value))
-                            else:
-                                var.set(float(str(value)))
-                        else:
-                            var.set(to_int(value))
+                        dpg.set_value(control, _to_int(value))
                     except Exception:
                         pass
+            try:
+                baseline_map[(category, field_name)] = self._get_ui_value(meta, control)
+            except Exception:
+                pass
+            try:
+                self._unsaved_changes.discard((category, field_name))
+            except Exception:
+                pass
+        self._initializing = False
+        self._loading_values = False
 
     def _save_all(self) -> None:
-        """Write all edited fields back to the team record."""
         if not self.model.mem.hproc:
-            messagebox.showerror("Save Error", "NBA 2K26 is not running.")
+            self.app.show_error("Save Error", "NBA 2K26 is not running.")
             return
+        baseline_map = getattr(self, "_baseline_values", None)
+        if not isinstance(baseline_map, dict) or not baseline_map:
+            self.app.show_message("Save", "No changes to save.")
+            return
+
         any_error = False
-        for category, fields in self.field_vars.items():
-            for field_name, var in fields.items():
-                meta = self.field_meta.get((category, field_name))
-                if not meta:
-                    continue
-                try:
-                    ui_value = var.get()
-                except Exception:
-                    any_error = True
-                    continue
-                ok = self.model.encode_field_value(
-                    entity_type="team",
-                    entity_index=self.team_index,
-                    category=category,
-                    field_name=field_name,
-                    meta=meta,
-                    display_value=ui_value,
-                )
-                any_error = any_error or not ok
+        changed_keys: list[tuple[str, str]] = []
+        for (category, field_name), baseline_value in baseline_map.items():
+            control = self.field_vars.get(category, {}).get(field_name)
+            meta = self.field_meta.get((category, field_name))
+            if control is None or meta is None or not dpg.does_item_exist(control):
+                continue
+            try:
+                ui_value = self._get_ui_value(meta, control)
+            except Exception:
+                any_error = True
+                continue
+            if ui_value == baseline_value:
+                self._unsaved_changes.discard((category, field_name))
+                continue
+            changed_keys.append((category, field_name))
+            ok = self.model.encode_field_value(
+                entity_type="team",
+                entity_index=self.team_index,
+                category=category,
+                field_name=field_name,
+                meta=meta,
+                display_value=ui_value,
+            )
+            if ok:
+                baseline_map[(category, field_name)] = ui_value
+                self._unsaved_changes.discard((category, field_name))
+            else:
+                any_error = True
+
         if any_error:
-            messagebox.showerror("Save Error", "One or more fields could not be saved.")
+            self.app.show_error("Save Error", "One or more fields could not be saved.")
+        elif not changed_keys:
+            self.app.show_message("Save", "No changes to save.")
         else:
-            messagebox.showinfo("Save Successful", f"Saved fields for {self.team_name}.")
+            self.app.show_message("Save Successful", f"Saved {len(changed_keys)} field(s) for {self.team_name}.")
+
+    def _get_ui_value(self, meta: FieldMetadata, control_tag: int | str) -> object:
+        if meta.values:
+            selected = dpg.get_value(control_tag)
+            values_list = list(meta.values)
+            if selected in values_list:
+                return values_list.index(selected)
+            return 0
+        dtype = (meta.data_type or "").lower()
+        value = dpg.get_value(control_tag)
+        if any(tag in dtype for tag in ("string", "text", "char", "pointer", "wide")):
+            return "" if value is None else str(value)
+        if "float" in dtype:
+            try:
+                return float(cast(Any, value))
+            except Exception:
+                return 0.0
+        return _to_int(value)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _mark_unsaved(self, category: str, field_name: str) -> None:
+        if self._initializing:
+            return
+        self._unsaved_changes.add((category, field_name))
+
+    @staticmethod
+    def _coerce_int(value: object, default: int = 0) -> int:
+        try:
+            return int(cast(Any, value))
+        except Exception:
+            return default
+
+    def _on_close(self, _sender=None, _app_data=None, _user_data=None) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            editors = getattr(self.app, "full_editors", [])
+            if isinstance(editors, list):
+                try:
+                    editors.remove(self)
+                except ValueError:
+                    pass
+        except Exception:
+            pass
+        if self.window_tag and dpg.does_item_exist(self.window_tag):
+            dpg.delete_item(self.window_tag)
 
 
 __all__ = ["FullTeamEditor"]

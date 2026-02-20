@@ -8,6 +8,10 @@ from importlib import metadata
 __all__ = ["__version__"]
 
 try:
-    __version__ = metadata.version("nba2k26_editor")
+    __version__ = metadata.version("nba2k_editor")
 except metadata.PackageNotFoundError:
-    __version__ = "0.0.0-dev"
+    try:
+        # Backward-compat distribution name used in older builds.
+        __version__ = metadata.version("nba2k26_editor")
+    except metadata.PackageNotFoundError:
+        __version__ = "0.0.0-dev"

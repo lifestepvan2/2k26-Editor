@@ -12,6 +12,7 @@ import sys
 import time
 from typing import Iterable, Iterator, Tuple
 from concurrent.futures import ThreadPoolExecutor
+from ..memory.scan_utils import encode_wstring as _shared_encode_wstring, find_all as _shared_find_all
 
 try:
     import psutil
@@ -103,7 +104,7 @@ Module32NextW.restype = ctypes.c_bool
 
 
 def _encode_wstring(text: str) -> bytes:
-    return (text + "\x00").encode("utf-16le", errors="ignore")
+    return _shared_encode_wstring(text)
 
 
 def _find_process_pid(exe_name: str = "nba2k26.exe") -> int | None:
@@ -176,13 +177,7 @@ def _read_memory(handle: int, address: int, size: int) -> bytes | None:
 
 
 def _find_all(data: bytes, pattern: bytes) -> Iterable[int]:
-    start = 0
-    while True:
-        idx = data.find(pattern, start)
-        if idx == -1:
-            break
-        yield idx
-        start = idx + 2  # step by 2 bytes to stay UTF-16 aligned
+    yield from _shared_find_all(data, pattern, step=2)
 
 
 def _scan_player_names(

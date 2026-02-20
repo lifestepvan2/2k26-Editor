@@ -1,100 +1,56 @@
-"""Stadium screen hooked to live offsets when available."""
+"""Stadium screen for Dear PyGui."""
 from __future__ import annotations
 
-import tkinter as tk
-
-from ..core.config import (
-    PANEL_BG,
-    PRIMARY_BG,
-    TEXT_PRIMARY,
-    TEXT_SECONDARY,
-    BUTTON_BG,
-    BUTTON_TEXT,
-    BUTTON_ACTIVE_BG,
-    ENTRY_BG,
-    ENTRY_BORDER,
-    ENTRY_FG,
-)
+import dearpygui.dearpygui as dpg
 
 
 def build_stadium_screen(app) -> None:
-    app.stadium_frame = tk.Frame(app, bg=PRIMARY_BG)
+    with dpg.child_window(
+        tag="screen_stadium",
+        parent=app.content_root,
+        autosize_x=True,
+        autosize_y=True,
+        show=False,
+    ) as tag:
+        app.screen_tags["stadium"] = tag
+        with dpg.group(horizontal=True):
+            dpg.add_text("Stadiums", color=(224, 225, 221, 255))
+            app.stadium_status_text_tag = dpg.add_text(
+                app.stadium_status_var.get(),
+                color=(155, 164, 181, 255),
+            )
+        dpg.add_spacer(height=6)
+        with dpg.group(horizontal=True):
+            dpg.add_text("Search")
+            app.stadium_search_input_tag = dpg.add_input_text(
+                hint="Search stadiums.",
+                width=240,
+                callback=lambda _s, value: _on_search_changed(app, value),
+            )
+            dpg.add_button(label="Refresh", width=90, callback=app._refresh_stadium_list)
+        dpg.add_spacer(height=6)
+        with dpg.group(horizontal=True):
+            with dpg.child_window(tag="stadium_list_container", width=360, autosize_y=True, border=True) as list_container:
+                app.stadium_list_container = list_container
+                dpg.add_text("No stadiums loaded.")
+            with dpg.child_window(tag="stadium_detail_container", autosize_x=True, autosize_y=True, border=True):
+                dpg.add_text("Stadium Details", color=(224, 225, 221, 255))
+                app.stadium_count_text_tag = dpg.add_text(
+                    app.stadium_count_var.get(),
+                    color=(155, 164, 181, 255),
+                    wrap=520,
+                )
+                app.btn_stadium_full = dpg.add_button(
+                    label="Open Stadium Editor",
+                    width=200,
+                    enabled=False,
+                    callback=lambda: app._open_full_stadium_editor(app._current_stadium_index()),
+                )
 
-    header = tk.Frame(app.stadium_frame, bg=PANEL_BG)
-    header.pack(fill=tk.X, padx=12, pady=12)
-    tk.Label(
-        header,
-        text="Stadium",
-        font=("Segoe UI", 18, "bold"),
-        bg=PANEL_BG,
-        fg=TEXT_PRIMARY,
-    ).pack(side=tk.LEFT)
-    tk.Label(
-        header,
-        textvariable=app.stadium_status_var,
-        bg=PANEL_BG,
-        fg=TEXT_SECONDARY,
-    ).pack(side=tk.LEFT, padx=(10, 0))
 
-    body = tk.Frame(app.stadium_frame, bg=PRIMARY_BG)
-    body.pack(fill=tk.BOTH, expand=True, padx=16, pady=12)
-
-    # Left: list
-    left = tk.Frame(body, bg=PRIMARY_BG)
-    left.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 12))
-    tk.Label(left, text="Stadium List", bg=PRIMARY_BG, fg=TEXT_PRIMARY, font=("Segoe UI", 11, "bold")).pack(anchor="w")
-    search = tk.Entry(
-        left,
-        textvariable=app.stadium_search_var,
-        bg=ENTRY_BG,
-        fg=ENTRY_FG,
-        relief=tk.FLAT,
-        insertbackground=ENTRY_FG,
-        highlightbackground=ENTRY_BORDER,
-        highlightthickness=1,
-    )
-    search.pack(fill=tk.X, pady=(4, 6))
-    app.stadium_search_var.trace_add("write", lambda *_: app._filter_stadium_list())
-    listbox = tk.Listbox(left, height=20, bg=PANEL_BG, fg=TEXT_PRIMARY, selectbackground=BUTTON_ACTIVE_BG)
-    listbox.pack(fill=tk.BOTH, expand=True)
-    listbox.bind("<<ListboxSelect>>", lambda *_: app._on_stadium_selected())
-    listbox.bind("<Double-1>", lambda *_: app._open_full_stadium_editor(app._current_stadium_index()))
-
-    # Right: detail
-    right = tk.Frame(body, bg=PANEL_BG, bd=1, relief=tk.FLAT)
-    right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-    tk.Label(
-        right,
-        text="Stadium Details",
-        bg=PANEL_BG,
-        fg=TEXT_PRIMARY,
-        font=("Segoe UI", 12, "bold"),
-    ).pack(anchor="w", padx=12, pady=(10, 4))
-    tk.Label(
-        right,
-        textvariable=app.stadium_count_var,
-        bg=PANEL_BG,
-        fg=TEXT_SECONDARY,
-        justify=tk.LEFT,
-        wraplength=520,
-    ).pack(anchor="w", padx=12, pady=(0, 12))
-    tk.Button(
-        right,
-        text="Open Stadium Editor",
-        command=lambda: app._open_full_stadium_editor(app._current_stadium_index()),
-        bg=BUTTON_BG,
-        fg=BUTTON_TEXT,
-        activebackground=BUTTON_ACTIVE_BG,
-        activeforeground=BUTTON_TEXT,
-        relief=tk.FLAT,
-        padx=14,
-        pady=6,
-    ).pack(anchor="w", padx=12, pady=(0, 10))
-
-    # Expose widgets for future wiring
-    app.stadium_listbox = listbox
-    app.stadium_search = search
-    app._refresh_stadium_list()
+def _on_search_changed(app, value: str) -> None:
+    app.stadium_search_var.set(value or "")
+    app._filter_stadium_list()
 
 
 __all__ = ["build_stadium_screen"]

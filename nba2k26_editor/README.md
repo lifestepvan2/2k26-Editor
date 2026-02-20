@@ -1,59 +1,59 @@
-# nba2k26_editor package
+# nba2k_editor folder
 
-This package contains the full NBA 2K26 editor runtime: entrypoints, memory
-access, offsets, data models, import/export logic, and the Tkinter UI.
+## Responsibilities
+- Package root for runtime composition and module execution.
+- Owns direct Python files: `__init__.py`, `__main__.py`.
+- Maintains folder-local runtime behavior and boundaries used by the editor.
 
-## Runtime flow (high level)
-1. `entrypoints.gui.main` opens the NBA 2K process (if running) and loads
-   offsets via `core.offsets.initialize_offsets`.
-2. `models.data_model.PlayerDataModel` builds categories and prepares live
-   read/write helpers based on the loaded offsets.
-3. `ui.app.PlayerEditorApp` builds screens and tools on top of the model.
+## Technical Deep Dive
+Package root for runtime composition and module execution.
+This folder currently has 2 direct Python modules. Function-tree coverage below is exhaustive for direct files and includes nested callables.
 
-## Package root files
-- `__init__.py`: package metadata and `__version__` provider.
-- `__main__.py`: `python -m nba2k26_editor` entrypoint, calls the GUI launcher.
-- `autoload_extensions.json`: list of extension module paths to auto-load at
-  startup (managed by the Extensions UI).
-- `dual_base_mirror.py`: optional extension that mirrors player/team writes to
-  alternate base tables and registers a player-panel settings widget.
-- `README.md`: this document.
+## Runtime/Data Flow
+1. Callers enter this folder through public entry modules or imported helper functions.
+2. Folder code performs domain-specific orchestration and delegates to adjacent layers as needed.
+3. Results/events/state are returned to UI, model, runtime, or CLI callers depending on workflow.
 
-## Extensions and add-ons
-- Extension hooks live in `core.extensions` and are used by the UI to insert
-  player-panel widgets or full editor panels.
-- `ui.extensions_ui` discovers `.py` files in the project root and the
-  `Extentions` folder (spelling is intentional) and can restart the app to
-  unload extensions.
-- `dual_base_mirror.py` patches `GameMemory.write_bytes` to mirror writes to
-  alternate bases; its settings are stored in `dual_base_mirror.json`.
+## Integration Points
+- Integrated within `nba2k_editor/` runtime graph.
+- Consumed by neighboring package layers through imports and method calls.
 
-## Import/export data flow
-- Excel import/export uses `importing.excel_import` and template spreadsheets
-  stored under `Offsets`.
+## Function Tree
+Scope: direct Python files in this folder only. Child folder details are documented in their own READMEs.
 
-## Subpackages
-- `ai\`: AI assistant UI, control bridge, and NBA data loader.
-- `core\`: shared config, conversions, offsets, dynamic base scanning, and
-  extension registration.
-- `entrypoints\`: executable entrypoints (GUI bootstrap).
-- `importing\`: Excel import helpers and shared CSV parsing utilities.
-- `memory\`: Win32 process and memory access.
-- `models\`: data model and schema helpers.
-- `ui\`: Tkinter UI screens, dialogs, and editor windows.
+### `__init__.py`
+- No callable definitions.
 
-## Data and generated folders
-- `Offsets\`: merged offsets bundle and reference spreadsheets.
-- `NBA Player Data\`: NBA reference workbook for the AI assistant.
-- `logs\`: runtime logs (memory read/write audit when dev logging is enabled).
-- `build\`: PyInstaller intermediate artifacts.
-- `dist\`: PyInstaller output executable.
-- `__pycache__\`, `cache\`: Python caches (generated).
+### `__main__.py`
+- No callable definitions.
 
-## Runtime config files
-- `ai_settings.json`: persisted AI backend settings (remote/local).
-- `autoload_extensions.json`: persisted list of autoload extensions.
-- `dual_base_mirror.json`: dual-base mirror settings.
+## Child Folder Map
+- `ai/`: `ai/README.md`
+- `core/`: `core/README.md`
+- `entrypoints/`: `entrypoints/README.md`
+- `gm_rl/`: `gm_rl/README.md`
+- `importing/`: `importing/README.md`
+- `logs/`: `logs/README.md`
+- `memory/`: `memory/README.md`
+- `models/`: `models/README.md`
+- `NBA Player Data/`: `NBA Player Data/README.md`
+- `Offsets/`: `Offsets/README.md`
+- `tests/`: `tests/README.md`
+- `ui/`: `ui/README.md`
 
-All are stored in the package root via `core.config.CONFIG_DIR` and are safe
-to delete if you want to reset to defaults.
+## Call Graph Navigation
+- Static call graph summary: `tests/CALL_GRAPH.md`
+- Machine-readable call graph: `tests/call_graph.json`
+- Node id format: `module::qualname` (example: `nba2k_editor.entrypoints.gui::main`)
+- Edge kinds:
+- `call`: direct static call expression resolution.
+- `callback_ref`: function references passed as callback-style arguments/keywords.
+
+## Failure Modes and Debugging
+- Upstream schema or dependency drift can surface runtime failures in this layer.
+- Environment mismatches (platform, optional deps, file paths) can reduce or disable functionality.
+- Nested call paths are easiest to diagnose by following this README function tree and runtime logs.
+
+## Test Coverage Notes
+- Coverage for this folder is provided by related suites under `nba2k_editor/tests`.
+- Use targeted pytest runs around impacted modules after edits.

@@ -1,291 +1,392 @@
-"""Staff editor scaffold styled like the player editor."""
+"""Staff editor built with Dear PyGui."""
 from __future__ import annotations
 
-import tkinter as tk
-from tkinter import ttk, messagebox
+import threading
+from typing import TYPE_CHECKING, Any, cast
 
-from ..core.config import (
-    PANEL_BG,
-    TEXT_PRIMARY,
-    TEXT_SECONDARY,
-    BUTTON_BG,
-    BUTTON_TEXT,
-    BUTTON_ACTIVE_BG,
-    ACCENT_BG,
-    ENTRY_BG,
-    ENTRY_FG,
-    ENTRY_BORDER,
-)
+import dearpygui.dearpygui as dpg
+
 from ..core.conversions import to_int as _to_int
 from ..models.schema import FieldMetadata
 
+if TYPE_CHECKING:
+    from ..models.data_model import PlayerDataModel
 
-class FullStaffEditor(tk.Toplevel):
-    """Notebook-based staff editor; reads categories only (no live memory until pointers are available)."""
 
-    def __init__(self, parent: tk.Tk, model, staff_index: int | None = None) -> None:
-        super().__init__(parent)
+class FullStaffEditor:
+    """Tabbed staff editor using Dear PyGui."""
+
+    def __init__(self, app, model: "PlayerDataModel", staff_index: int | None = None) -> None:
+        self.app = app
         self.model = model
         self.staff_index = staff_index if staff_index is not None else 0
-        self.title("Staff Editor")
-        self.geometry("720x520")
-        self.configure(bg=PANEL_BG)
         self._editor_type = "staff"
-        self.field_vars: dict[tuple[str, str], tk.Variable] = {}
+        self._closed = False
+        self.field_vars: dict[str, dict[str, int | str]] = {}
         self.field_meta: dict[tuple[str, str], FieldMetadata] = {}
-        self._initializing = True
+        # Baseline UI-side values loaded from memory. Save should only write fields that
+        # were successfully loaded into the editor and whose UI values differ from this baseline.
+        self._baseline_values: dict[tuple[str, str], object] = {}
         self._unsaved_changes: set[tuple[str, str]] = set()
+        self._initializing = True
+        self._loading_values = False
 
-        header = tk.Frame(self, bg=PANEL_BG)
-        header.pack(fill=tk.X, padx=12, pady=(12, 4))
-        tk.Label(
-            header,
-            text="Staff Editor",
-            fg=TEXT_PRIMARY,
-            bg=PANEL_BG,
-            font=("Segoe UI", 14, "bold"),
-        ).pack(side=tk.LEFT)
-        tk.Label(
-            header,
-            text="Live editing will activate once staff base pointers/stride are defined in offsets.json.",
-            fg=TEXT_SECONDARY,
-            bg=PANEL_BG,
-        ).pack(side=tk.LEFT, padx=(10, 0))
+        self.window_tag = dpg.generate_uuid()
+        self.tab_bar_tag = dpg.generate_uuid()
 
-        notebook = ttk.Notebook(self)
-        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        staff_categories = self.model.get_categories_for_super("Staff") or {}
-        if not staff_categories:
-            frame = tk.Frame(notebook, bg=PANEL_BG)
-            notebook.add(frame, text="Staff")
-            tk.Label(
-                frame,
-                text="No staff categories detected in offsets.json.",
-                bg=PANEL_BG,
-                fg=TEXT_SECONDARY,
-            ).pack(padx=12, pady=12, anchor="w")
-        else:
-            for cat in sorted(staff_categories.keys()):
-                frame = tk.Frame(notebook, bg=PANEL_BG)
-                notebook.add(frame, text=cat)
-                self._build_category_tab(frame, cat, staff_categories.get(cat))
-
-        btn_row = tk.Frame(self, bg=PANEL_BG)
-        btn_row.pack(fill=tk.X, padx=10, pady=(0, 10))
-        tk.Button(
-            btn_row,
-            text="Close",
-            command=self.destroy,
-            bg=BUTTON_BG,
-            fg=BUTTON_TEXT,
-            activebackground=BUTTON_ACTIVE_BG,
-            activeforeground=BUTTON_TEXT,
-            relief=tk.FLAT,
-            padx=14,
-            pady=6,
-        ).pack(side=tk.RIGHT, padx=(6, 0))
-        tk.Button(
-            btn_row,
-            text="Save",
-            command=self._save_all,
-            bg=ACCENT_BG,
-            fg=TEXT_PRIMARY,
-            relief=tk.FLAT,
-            padx=14,
-            pady=6,
-        ).pack(side=tk.RIGHT, padx=(0, 6))
-        self._load_all_values()
-        self._initializing = False
-
-    def _build_category_tab(self, parent: tk.Frame, category_name: str, fields_obj: list | None = None) -> None:
-        fields = fields_obj if isinstance(fields_obj, list) else self.model.categories.get(category_name, [])
-        canvas = tk.Canvas(parent, bg=PANEL_BG, highlightthickness=0, bd=0)
-        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
-        scroll_frame = tk.Frame(canvas, bg=PANEL_BG)
-        scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set, bg=PANEL_BG)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        for row, field in enumerate(fields):
-            if not isinstance(field, dict):
-                continue
-            name = field.get("name", f"Field {row}")
-            offset_val = _to_int(field.get("offset"))
-            start_bit = _to_int(field.get("startBit", field.get("start_bit", 0)))
-            length = _to_int(field.get("length", 8))
-            byte_length = _to_int(field.get("size") or field.get("length") or 0)
-            field_type = str(field.get("type", "")).lower()
-            values_list = field.get("values") if isinstance(field, dict) else None
-            tk.Label(scroll_frame, text=name + ":", bg=PANEL_BG, fg=TEXT_PRIMARY).grid(
-                row=row, column=0, sticky=tk.W, padx=(10, 5), pady=2
+        with dpg.window(
+            label="Staff Editor",
+            tag=self.window_tag,
+            width=780,
+            height=620,
+            no_collapse=True,
+            on_close=self._on_close,
+        ):
+            dpg.add_text(
+                "Live editing will activate once staff base pointers/stride are defined in offsets.json.",
+                wrap=680,
             )
-            is_string = any(tag in field_type for tag in ("string", "text", "wstring", "wide", "utf16", "char"))
-            is_float = "float" in field_type
-            is_color = any(tag in field_type for tag in ("color", "pointer"))
-            var: tk.Variable
-            if values_list:
-                var = tk.IntVar(value=0)
-                combo = ttk.Combobox(
-                    scroll_frame,
-                    values=values_list,
-                    state="readonly",
-                    width=20,
-                )
-                combo.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-                def on_enum_selected(event=None, v=var, c=combo, vals=values_list):
-                    try:
-                        v.set(vals.index(c.get()))
-                    except Exception:
-                        v.set(0)
-                combo.bind("<<ComboboxSelected>>", on_enum_selected)
-                entry = combo
-            elif is_string:
-                var = tk.StringVar(value="")
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    width=28,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    relief=tk.FLAT,
-                    highlightbackground=ENTRY_BORDER,
-                    highlightthickness=1,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-            elif is_float:
-                var = tk.DoubleVar(value=0.0)
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    width=16,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    relief=tk.FLAT,
-                    highlightbackground=ENTRY_BORDER,
-                    highlightthickness=1,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-            elif is_color:
-                var = tk.StringVar(value="")
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    width=16,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    relief=tk.FLAT,
-                    highlightbackground=ENTRY_BORDER,
-                    highlightthickness=1,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-            else:
-                var = tk.IntVar(value=0)
-                entry = tk.Entry(
-                    scroll_frame,
-                    textvariable=var,
-                    width=12,
-                    bg=ENTRY_BG,
-                    fg=ENTRY_FG,
-                    insertbackground=ENTRY_FG,
-                    relief=tk.FLAT,
-                    highlightbackground=ENTRY_BORDER,
-                    highlightthickness=1,
-                )
-                entry.grid(row=row, column=1, sticky=tk.W, padx=(0, 10), pady=2)
-            self.field_vars[(category_name, name)] = var
-            self.field_meta[(category_name, name)] = FieldMetadata(
+            self._build_tabs()
+            dpg.add_separator()
+            with dpg.group(horizontal=True):
+                dpg.add_button(label="Save", width=100, callback=self._save_all)
+                dpg.add_button(label="Close", width=100, callback=self._on_close)
+
+        editors = getattr(self.app, "full_editors", None)
+        if isinstance(editors, list):
+            editors.append(self)
+        else:
+            self.app.full_editors = [self]
+
+        self._load_all_values_async()
+
+    # ------------------------------------------------------------------
+    # UI
+    # ------------------------------------------------------------------
+    def _build_tabs(self) -> None:
+        categories = self.model.get_categories_for_super("Staff") or {}
+        ordered = sorted(categories.keys())
+        if not ordered:
+            dpg.add_text("No staff categories detected in offsets.json.", parent=self.window_tag)
+            return
+        with dpg.tab_bar(tag=self.tab_bar_tag, parent=self.window_tag):
+            for cat in ordered:
+                self._build_category_tab(cat, categories.get(cat))
+
+    def _build_category_tab(self, category_name: str, fields_obj: list | None = None) -> None:
+        fields = fields_obj if isinstance(fields_obj, list) else self.model.categories.get(category_name, [])
+        with dpg.tab(label=category_name, parent=self.tab_bar_tag):
+            if not fields:
+                dpg.add_text("No fields found for this category.")
+                return
+            table = dpg.add_table(
+                header_row=False,
+                resizable=False,
+                policy=dpg.mvTable_SizingStretchProp,
+                scrollX=False,
+                scrollY=False,
+            )
+            dpg.add_table_column(width_fixed=True, init_width_or_weight=230)
+            dpg.add_table_column(init_width_or_weight=1.0)
+            for row, field in enumerate(fields):
+                if not isinstance(field, dict):
+                    continue
+                name = field.get("name", f"Field {row}")
+                with dpg.table_row(parent=table):
+                    dpg.add_text(f"{name}:")
+                    control = self._add_field_control(category_name, name, field)
+                self.field_vars.setdefault(category_name, {})[name] = control
+
+    def _add_field_control(self, category_name: str, field_name: str, field: dict) -> int | str:
+        offset_val = _to_int(field.get("offset"))
+        start_bit = _to_int(field.get("startBit", field.get("start_bit", 0)))
+        length = _to_int(field.get("length", 8))
+        byte_length = _to_int(field.get("size") or field.get("length") or 0)
+        field_type = str(field.get("type", "")).lower()
+        values_list = field.get("values") if isinstance(field, dict) else None
+        requires_deref = bool(field.get("requiresDereference") or field.get("requires_deref"))
+        deref_offset = _to_int(field.get("dereferenceAddress") or field.get("deref_offset"))
+        is_string = any(tag in field_type for tag in ("string", "text", "wstring", "wide", "utf16", "char"))
+        is_float = "float" in field_type
+        is_color = any(tag in field_type for tag in ("color", "pointer"))
+        max_raw = (1 << length) - 1 if length and length < 31 else 999999
+
+        if values_list:
+            items = [str(v) for v in values_list]
+            control = dpg.add_combo(
+                items=items,
+                default_value=items[0] if items else "",
+                width=200,
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
                 offset=offset_val,
                 start_bit=start_bit,
                 length=length,
-                requires_deref=bool(field.get("requiresDereference") or field.get("requires_deref")),
-                deref_offset=_to_int(field.get("dereferenceAddress") or field.get("deref_offset")),
-                widget=entry,
-                values=tuple(str(v) for v in values_list) if values_list else None,
-                data_type=field_type,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                values=tuple(items),
+                data_type=field_type or None,
                 byte_length=byte_length,
             )
-            var.trace_add("write", lambda *_a, key=(category_name, name): self._mark_dirty(key))
+            return control
 
-    def _mark_dirty(self, key: tuple[str, str]) -> None:
-        if self._initializing:
-            return
-        self._unsaved_changes.add(key)
-
-    def _load_all_values(self) -> None:
-        try:
-            self.model.refresh_staff()
-        except Exception:
-            return
-        for (cat, name), meta in self.field_meta.items():
-            var = self.field_vars.get((cat, name))
-            if var is None:
-                continue
-            val = self.model.decode_field_value(
-                entity_type="staff",
-                entity_index=self.staff_index,
-                category=cat,
-                field_name=name,
-                meta=meta,
+        if is_string:
+            max_chars = length if length > 0 else byte_length if byte_length > 0 else 64
+            control = dpg.add_input_text(
+                width=260,
+                max_chars=max_chars,
+                default_value="",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
             )
-            if val is None:
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=max_chars,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "string",
+                byte_length=byte_length,
+            )
+            return control
+
+        if is_float:
+            control = dpg.add_input_float(
+                width=160,
+                default_value=0.0,
+                format="%.4f",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=length,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "float",
+                byte_length=byte_length,
+            )
+            return control
+
+        if is_color:
+            control = dpg.add_input_text(
+                width=180,
+                default_value="",
+                callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+            )
+            self.field_meta[(category_name, field_name)] = FieldMetadata(
+                offset=offset_val,
+                start_bit=start_bit,
+                length=length,
+                requires_deref=requires_deref,
+                deref_offset=deref_offset,
+                widget=control,
+                data_type=field_type or "pointer",
+                byte_length=byte_length,
+            )
+            return control
+
+        control = dpg.add_input_int(
+            width=140,
+            default_value=0,
+            min_value=0,
+            max_value=max_raw,
+            min_clamped=True,
+            max_clamped=True,
+            callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
+        )
+        self.field_meta[(category_name, field_name)] = FieldMetadata(
+            offset=offset_val,
+            start_bit=start_bit,
+            length=length,
+            requires_deref=requires_deref,
+            deref_offset=deref_offset,
+            widget=control,
+            data_type=field_type or "int",
+            byte_length=byte_length,
+        )
+        return control
+
+    # ------------------------------------------------------------------
+    # Data loading / saving
+    # ------------------------------------------------------------------
+    def _load_all_values_async(self) -> None:
+        if self._loading_values:
+            return
+        self._loading_values = True
+
+        def _worker() -> None:
+            values: dict[tuple[str, str], object] = {}
+            for category, fields in self.field_vars.items():
+                for field_name in fields.keys():
+                    meta = self.field_meta.get((category, field_name))
+                    if not meta:
+                        continue
+                    value = self.model.decode_field_value(
+                        entity_type="staff",
+                        entity_index=self.staff_index,
+                        category=category,
+                        field_name=field_name,
+                        meta=meta,
+                    )
+                    if value is None:
+                        continue
+                    values[(category, field_name)] = value
+
+            def _apply() -> None:
+                if self._closed:
+                    return
+                self._apply_loaded_values(values)
+
+            try:
+                self.app.run_on_ui_thread(_apply)
+            except Exception:
+                _apply()
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+    def _apply_loaded_values(self, values: dict[tuple[str, str], object]) -> None:
+        baseline_map = getattr(self, "_baseline_values", None)
+        if not isinstance(baseline_map, dict):
+            baseline_map = {}
+            self._baseline_values = baseline_map
+        for (category, field_name), value in values.items():
+            control = self.field_vars.get(category, {}).get(field_name)
+            meta = self.field_meta.get((category, field_name))
+            if control is None or meta is None or not dpg.does_item_exist(control):
                 continue
-            if meta.values and isinstance(var, tk.IntVar):
-                try:
-                    idx = int(val)
-                except Exception:
-                    idx = 0
-                var.set(idx)
-                widget = meta.widget
+            if meta.values:
                 vals = list(meta.values)
-                if isinstance(widget, ttk.Combobox) and 0 <= idx < len(vals):
+                selection = vals[0] if vals else ""
+                if isinstance(value, str) and value in vals:
+                    selection = value
+                else:
                     try:
-                        widget.set(vals[idx])
+                        idx = self._coerce_int(value, default=0)
+                        if 0 <= idx < len(vals):
+                            selection = vals[idx]
                     except Exception:
                         pass
-            elif isinstance(var, tk.StringVar):
-                var.set(str(val))
-            elif isinstance(var, tk.DoubleVar):
-                try:
-                    var.set(float(val))
-                except Exception:
-                    pass
+                dpg.set_value(control, selection)
             else:
-                try:
-                    var.set(int(val))
-                except Exception:
-                    var.set(0)
-        self._unsaved_changes.clear()
+                dtype = (meta.data_type or "").lower()
+                if any(tag in dtype for tag in ("string", "text", "char", "pointer", "wide")):
+                    dpg.set_value(control, "" if value is None else str(value))
+                elif "float" in dtype:
+                    try:
+                        dpg.set_value(control, float(cast(Any, value)))
+                    except Exception:
+                        pass
+                else:
+                    try:
+                        dpg.set_value(control, _to_int(value))
+                    except Exception:
+                        pass
+            try:
+                baseline_map[(category, field_name)] = self._get_ui_value(meta, control)
+            except Exception:
+                pass
+            try:
+                self._unsaved_changes.discard((category, field_name))
+            except Exception:
+                pass
+        self._initializing = False
+        self._loading_values = False
 
     def _save_all(self) -> None:
+        baseline_map = getattr(self, "_baseline_values", None)
+        if not isinstance(baseline_map, dict) or not baseline_map:
+            self.app.show_message("Save", "No changes to save.")
+            return
+
         errors: list[str] = []
-        for (cat, name), meta in self.field_meta.items():
-            var = self.field_vars.get((cat, name))
-            if var is None:
+        changed_keys: list[tuple[str, str]] = []
+        for (category, field_name), baseline_value in baseline_map.items():
+            control = self.field_vars.get(category, {}).get(field_name)
+            meta = self.field_meta.get((category, field_name))
+            if control is None or meta is None or not dpg.does_item_exist(control):
                 continue
             try:
-                raw = var.get()
+                ui_value = self._get_ui_value(meta, control)
             except Exception:
+                errors.append(f"{category}/{field_name}")
                 continue
+            if ui_value == baseline_value:
+                self._unsaved_changes.discard((category, field_name))
+                continue
+            changed_keys.append((category, field_name))
             success = self.model.encode_field_value(
                 entity_type="staff",
                 entity_index=self.staff_index,
-                category=cat,
-                field_name=name,
+                category=category,
+                field_name=field_name,
                 meta=meta,
-                display_value=raw,
+                display_value=ui_value,
             )
-            if not success:
-                errors.append(f"{cat} / {name}")
+            if success:
+                baseline_map[(category, field_name)] = ui_value
+                self._unsaved_changes.discard((category, field_name))
+            else:
+                errors.append(f"{category}/{field_name}")
+
         if errors:
-            messagebox.showerror("Staff Editor", f"Failed to save fields:\n" + "\n".join(errors))
+            self.app.show_error("Staff Editor", "Failed to save fields:\n" + "\n".join(errors))
+        elif not changed_keys:
+            self.app.show_message("Save", "No changes to save.")
         else:
-            messagebox.showinfo("Staff Editor", "Saved staff values.")
-            self._unsaved_changes.clear()
+            self.app.show_message("Staff Editor", f"Saved {len(changed_keys)} field(s).")
+
+    def _get_ui_value(self, meta: FieldMetadata, control_tag: int | str) -> object:
+        if meta.values:
+            selected = dpg.get_value(control_tag)
+            values_list = list(meta.values)
+            if selected in values_list:
+                return values_list.index(selected)
+            return 0
+        dtype = (meta.data_type or "").lower()
+        value = dpg.get_value(control_tag)
+        if any(tag in dtype for tag in ("string", "text", "char", "pointer", "wide")):
+            return "" if value is None else str(value)
+        if "float" in dtype:
+            try:
+                return float(cast(Any, value))
+            except Exception:
+                return 0.0
+        return _to_int(value)
+
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+    def _mark_unsaved(self, category: str, field_name: str) -> None:
+        if self._initializing:
+            return
+        self._unsaved_changes.add((category, field_name))
+
+    @staticmethod
+    def _coerce_int(value: object, default: int = 0) -> int:
+        try:
+            return int(cast(Any, value))
+        except Exception:
+            return default
+
+    def _on_close(self, _sender=None, _app_data=None, _user_data=None) -> None:
+        if self._closed:
+            return
+        self._closed = True
+        try:
+            editors = getattr(self.app, "full_editors", [])
+            if isinstance(editors, list):
+                try:
+                    editors.remove(self)
+                except ValueError:
+                    pass
+        except Exception:
+            pass
+        if self.window_tag and dpg.does_item_exist(self.window_tag):
+            dpg.delete_item(self.window_tag)
 
 
 __all__ = ["FullStaffEditor"]
