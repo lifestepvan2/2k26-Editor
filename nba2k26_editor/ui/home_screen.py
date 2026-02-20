@@ -19,8 +19,6 @@ def build_home_screen(app) -> None:
             with dpg.tab_bar():
                 with dpg.tab(label="Overview"):
                     _build_home_overview_tab(app)
-                with dpg.tab(label="AI Settings"):
-                    _build_home_ai_settings_tab(app)
         dpg.add_spacer(height=8)
         dpg.add_text(f"Version {APP_VERSION}", color=(150, 160, 170, 255))
 
@@ -55,97 +53,6 @@ def _build_home_overview_tab(app) -> None:
 
     dpg.add_spacer(height=16)
     _build_extension_loader(app)
-
-
-def _build_home_ai_settings_tab(app) -> None:
-    dpg.add_text("AI Settings", color=(224, 225, 221, 255))
-    dpg.add_spacer(height=6)
-    with dpg.group(horizontal=True):
-        dpg.add_text("Mode", color=(200, 208, 214, 255))
-        dpg.add_radio_button(
-            items=["none", "remote", "local"],
-            default_value=app.ai_mode_var.get() or "none",
-            callback=lambda _s, v: app.ai_mode_var.set(v),
-            horizontal=True,
-        )
-    dpg.add_spacer(height=4)
-    dpg.add_text("Remote (OpenAI-compatible)", color=(200, 208, 214, 255))
-    dpg.add_input_text(
-        label="Base URL",
-        default_value=app.ai_api_base_var.get(),
-        width=320,
-        callback=lambda s, v: app.ai_api_base_var.set(v),
-    )
-    dpg.add_input_text(
-        label="API Key",
-        default_value=app.ai_api_key_var.get(),
-        width=320,
-        password=True,
-        callback=lambda s, v: app.ai_api_key_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Model",
-        default_value=app.ai_model_var.get(),
-        width=320,
-        callback=lambda s, v: app.ai_model_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Timeout (sec)",
-        default_value=app.ai_api_timeout_var.get(),
-        width=120,
-        callback=lambda s, v: app.ai_api_timeout_var.set(v),
-    )
-    dpg.add_spacer(height=6)
-    dpg.add_text("Local", color=(200, 208, 214, 255))
-    dpg.add_combo(
-        label="Backend",
-        items=["cli", "python"],
-        default_value=app.ai_local_backend_var.get() or "cli",
-        width=160,
-        callback=lambda s, v: app.ai_local_backend_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Command",
-        default_value=app.ai_local_command_var.get(),
-        width=400,
-        callback=lambda s, v: app.ai_local_command_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Arguments",
-        default_value=app.ai_local_args_var.get(),
-        width=400,
-        callback=lambda s, v: app.ai_local_args_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Working Dir",
-        default_value=app.ai_local_workdir_var.get(),
-        width=400,
-        callback=lambda s, v: app.ai_local_workdir_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Python Backend",
-        default_value=app.ai_python_backend_var.get(),
-        width=200,
-        callback=lambda s, v: app.ai_python_backend_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Model Path/ID",
-        default_value=app.ai_model_path_var.get(),
-        width=400,
-        callback=lambda s, v: app.ai_model_path_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Max Tokens",
-        default_value=app.ai_model_max_tokens_var.get(),
-        width=140,
-        callback=lambda s, v: app.ai_model_max_tokens_var.set(v),
-    )
-    dpg.add_input_text(
-        label="Temperature",
-        default_value=app.ai_model_temperature_var.get(),
-        width=140,
-        callback=lambda s, v: app.ai_model_temperature_var.set(v),
-    )
 
 
 def _build_extension_loader(app) -> None:

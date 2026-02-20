@@ -28,19 +28,6 @@ def test_find_symbol_refs_excludes_comments_strings_and_substrings(tmp_path: Pat
     lines = [r["line"] for r in refs]
     assert lines == [1, 3, 4]
 
-
-def test_callback_ref_edges_are_captured() -> None:
-    edges, _callers, callback_callers = tool._build_static_graph(tool.ROOT)
-    source = "nba2k_editor.ai.backends.python_backend::generate_async"
-    target = "nba2k_editor.ai.backends.python_backend::generate_async._worker"
-
-    assert any(
-        e.get("kind") == "callback_ref" and e.get("source") == source and e.get("target") == target
-        for e in edges
-    )
-    assert source in callback_callers.get(target, set())
-
-
 def test_classification_rules() -> None:
     status, confidence = tool._classify_candidate(
         "orphan",

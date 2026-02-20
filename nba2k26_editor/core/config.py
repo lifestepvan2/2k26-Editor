@@ -15,7 +15,6 @@ LOG_DIR = BASE_DIR / "logs"
 CONFIG_DIR = BASE_DIR
 
 # Paths reused across modules
-AI_SETTINGS_PATH = CONFIG_DIR / "ai_settings.json"
 AUTOLOAD_EXT_FILE = CONFIG_DIR / "autoload_extensions.json"
 CACHE_DIR = CONFIG_DIR / "cache"
 AUTOLOAD_EXTENSIONS = os.environ.get("NBA2K_EXTENSIONS_AUTOLOAD", "").strip().lower() in ("1", "true", "yes", "on")
@@ -61,7 +60,6 @@ __all__ = [
     "BASE_DIR",
     "LOG_DIR",
     "CONFIG_DIR",
-    "AI_SETTINGS_PATH",
     "AUTOLOAD_EXT_FILE",
     "AUTOLOAD_EXTENSIONS",
     "DEFAULT_OFFSET_FILES",

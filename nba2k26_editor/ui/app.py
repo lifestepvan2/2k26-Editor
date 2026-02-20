@@ -1,10 +1,8 @@
 """Main application window (ported from the monolithic editor)."""
 from __future__ import annotations
 
-import copy
 import json
 import queue
-import random
 import re
 import threading
 from pathlib import Path
@@ -47,9 +45,7 @@ class BoundBoolVar(BoundVar):
         super().set(bool(value))
 
 
-from ..ai.settings import DEFAULT_AI_SETTINGS
 from ..core.config import (
-    AI_SETTINGS_PATH,
     HOOK_TARGET_LABELS,
     MODULE_NAME,
 )
@@ -77,16 +73,9 @@ from .theme import apply_base_theme
 from .dialogs import ImportSummaryDialog, TeamSelectionDialog
 
 if TYPE_CHECKING:
-    from ..gm_rl.adapters.base import EditorAdapter
-    from ..gm_rl.adapters.editor_live import EditorLiveAdapter
-    from ..gm_rl.adapters.local_mock import LocalMockAdapter
-    from ..gm_rl.runtime import AgentRuntime
-
     class RawFieldInspectorExtension:  # minimal stub for type checkers
         ...
 from .home_screen import build_home_screen
-from .ai_screen import build_ai_screen
-from .agent_screen import build_agent_screen
 from .players_screen import build_players_screen
 from .teams_screen import build_teams_screen
 from .league_screen import build_nba_history_screen, build_nba_records_screen
@@ -254,50 +243,6 @@ class PlayerEditorApp:
         self.scanning = False
         self.dynamic_scan_in_progress = False
         self._pending_team_select: str | None = None
-        # AI state
-        self.ai_settings: dict[str, object] = {}
-        self.ai_mode_var = BoundVar("none")
-        self.ai_api_base_var = BoundVar("")
-        self.ai_api_key_var = BoundVar("")
-        self.ai_model_var = BoundVar("")
-        self.ai_api_timeout_var = BoundVar("")
-        self.ai_local_backend_var = BoundVar("cli")
-        self.ai_local_command_var = BoundVar("")
-        self.ai_local_args_var = BoundVar("")
-        self.ai_local_workdir_var = BoundVar("")
-        self.ai_python_backend_var = BoundVar("")
-        self.ai_model_path_var = BoundVar("")
-        self.ai_model_max_tokens_var = BoundVar("256")
-        self.ai_model_temperature_var = BoundVar("0.4")
-        self.ai_persona_choice_var = BoundVar("none")
-        self.ai_base_persona_var = BoundVar("")
-        self.ai_active_team_count_var = BoundVar("12")
-        self._ai_remote_inputs: list[int | str] = []
-        self._ai_local_inputs: list[int | str] = []
-        self._ai_python_inputs: list[int | str] = []
-        self._ai_persona_widgets: list[int | str] = []
-        self.ai_status_label: int | str | None = None
-        self.ai_assistant = None
-        self.control_bridge = None
-        # Agent / PPO state
-        self.agent_adapter_var = BoundVar("mock")
-        self.agent_apply_writes_var = BoundBoolVar(False)
-        self.agent_status_var = BoundVar("Agent idle.")
-        self.agent_checkpoint_var = BoundVar("")
-        self.agent_config_var = BoundVar("")
-        self.agent_team_id_var = BoundVar("1")
-        self.agent_episodes_var = BoundVar("3")
-        self.agent_log_lines: list[str] = []
-        self.agent_runtime: AgentRuntime | None = None
-        self.agent_log_tag: int | str | None = None
-        self.agent_status_text_tag: int | str | None = None
-        self.agent_checkpoint_input: int | str | None = None
-        self.agent_config_input: int | str | None = None
-        self.agent_team_input: int | str | None = None
-        self.agent_episode_input: int | str | None = None
-        self.agent_apply_writes_checkbox: int | str | None = None
-        self.agent_adapter_combo: int | str | None = None
-        self.agent_polling = False
         # Misc
         self.last_dynamic_base_report: dict[str, object] | None = None
         self.last_dynamic_base_overrides: dict[str, int] | None = None
@@ -310,11 +255,7 @@ class PlayerEditorApp:
             "stadium": build_stadium_screen,
             "excel": build_excel_screen,
             "trade": build_trade_players_screen,
-            "ai": build_ai_screen,
-            "agent": build_agent_screen,
         }
-        # Preload AI settings only. Control bridge starts lazily on first AI usage.
-        self._load_ai_settings_into_vars()
 
     # ------------------------------------------------------------------
     # Scheduling helpers
@@ -380,8 +321,6 @@ class PlayerEditorApp:
                 return dpg.add_button(label=label, width=-1, callback=lambda *_: cb())
             self.nav_home = nav("Home", self.show_home)
             self.nav_players = nav("Players", self.show_players)
-            self.nav_ai = nav("AI Assistant", self.show_ai)
-            self.nav_agent = nav("GM Agent", self.show_agent)
             self.nav_teams = nav("Teams", self.show_teams)
             self.nav_nba_history = nav("NBA History", self.show_nba_history)
             self.nav_nba_records = nav("NBA Records", self.show_nba_records)
@@ -440,20 +379,6 @@ class PlayerEditorApp:
     def show_league(self) -> None:
         # Backward-compatible alias.
         self.show_nba_history()
-
-    def _ensure_control_bridge_started(self) -> None:
-        if self.control_bridge is None:
-            self._start_control_bridge()
-
-    def show_ai(self) -> None:
-        self._ensure_screen_built("ai")
-        self._ensure_control_bridge_started()
-        self._show_screen("ai")
-
-    def show_agent(self) -> None:
-        self._ensure_screen_built("agent")
-        self._show_screen("agent")
-        self._start_agent_polling()
 
     def show_trade_players(self) -> None:
         self._ensure_screen_built("trade")
@@ -607,153 +532,6 @@ class PlayerEditorApp:
                         dpg.add_file_extension(ext, parent=dialog_tag)
                     except Exception:
                         pass
-
-    # ------------------------------------------------------------------
-    # AI settings + control bridge
-    # ------------------------------------------------------------------
-    def _start_control_bridge(self) -> None:
-        """Start the HTTP control bridge so external AIs can drive the app."""
-        if self.control_bridge is not None:
-            return
-        try:
-            from ..ai.assistant import ensure_control_bridge
-
-            self.control_bridge = ensure_control_bridge(cast(Any, self))
-        except Exception:
-            self.control_bridge = None
-
-    def _load_ai_settings_into_vars(self) -> None:
-        settings = self._load_ai_settings()
-        self.ai_settings = settings
-        mode = str(settings.get("mode", "none"))
-        remote = settings.get("remote", {}) if isinstance(settings, dict) else {}
-        local = settings.get("local", {}) if isinstance(settings, dict) else {}
-        self.ai_mode_var.set(mode or "none")
-        self.ai_api_base_var.set(str(remote.get("base_url", "")) if isinstance(remote, dict) else "")
-        self.ai_api_key_var.set(str(remote.get("api_key", "")) if isinstance(remote, dict) else "")
-        self.ai_model_var.set(str(remote.get("model", "")) if isinstance(remote, dict) else "")
-        timeout_val = remote.get("timeout") if isinstance(remote, dict) else ""
-        self.ai_api_timeout_var.set(str(timeout_val) if timeout_val not in (None, "") else "")
-        self.ai_local_backend_var.set(str(local.get("backend", "cli")) if isinstance(local, dict) else "cli")
-        self.ai_local_command_var.set(str(local.get("command", "")) if isinstance(local, dict) else "")
-        self.ai_local_args_var.set(str(local.get("arguments", "")) if isinstance(local, dict) else "")
-        self.ai_local_workdir_var.set(str(local.get("working_dir", "")) if isinstance(local, dict) else "")
-        self.ai_python_backend_var.set(str(local.get("python_backend", "")) if isinstance(local, dict) else "")
-        self.ai_model_path_var.set(str(local.get("model_path", "")) if isinstance(local, dict) else "")
-        self.ai_model_max_tokens_var.set(str(local.get("max_tokens", 256)) if isinstance(local, dict) else "256")
-        self.ai_model_temperature_var.set(str(local.get("temperature", 0.4)) if isinstance(local, dict) else "0.4")
-        profiles = settings.get("profiles") if isinstance(settings, dict) else {}
-        self.ai_base_persona_var.set(str(profiles.get("base", "")) if isinstance(profiles, dict) else "")
-        self.ai_active_team_count_var.set(str(profiles.get("active_count", 12)) if isinstance(profiles, dict) else "12")
-
-    def _load_ai_settings(self) -> dict[str, object]:
-        base = copy.deepcopy(DEFAULT_AI_SETTINGS)
-        try:
-            if AI_SETTINGS_PATH.exists():
-                with AI_SETTINGS_PATH.open("r", encoding="utf-8") as fh:
-                    data = json.load(fh)
-                    if isinstance(data, dict):
-                        self._merge_dict(base, data)
-        except Exception:
-            pass
-        try:
-            from ..ai.personas import ensure_default_profiles
-            teams = list(self.model.get_teams()) if hasattr(self.model, "get_teams") else []
-            profiles_raw = base.get("profiles")
-            profiles = profiles_raw if isinstance(profiles_raw, dict) else {}
-            active_raw = profiles.get("active_count", 12)
-            active_count = self._coerce_int(active_raw, default=12)
-            ensure_default_profiles(base, teams, active_count)
-        except Exception:
-            pass
-        return base
-
-    def _merge_dict(self, target: dict[str, object], source: dict[str, object]) -> None:
-        for key, value in source.items():
-            if isinstance(value, dict) and isinstance(target.get(key), dict):
-                self._merge_dict(cast(dict[str, object], target[key]), value)  # type: ignore[arg-type]
-            else:
-                target[key] = value
-
-    def _get_ai_profiles(self) -> dict[str, object]:
-        profiles = self.ai_settings.get("profiles")
-        return profiles if isinstance(profiles, dict) else {}
-
-    def _ensure_ai_profiles(self) -> dict[str, object]:
-        profiles = self.ai_settings.get("profiles")
-        if isinstance(profiles, dict):
-            return profiles
-        profiles = {}
-        self.ai_settings["profiles"] = profiles
-        return profiles
-
-    def _get_team_profiles(self) -> list[dict[str, object]]:
-        profiles = self._get_ai_profiles()
-        team_profiles = profiles.get("team_profiles")
-        if isinstance(team_profiles, list):
-            return cast(list[dict[str, object]], team_profiles)
-        return []
-
-    def _collect_ai_settings(self) -> dict[str, object]:
-        mode = str(self.ai_mode_var.get()).strip() or "none"
-        team_profiles = self._get_team_profiles()
-        settings: dict[str, object] = {
-            "mode": mode,
-            "remote": {
-                "base_url": str(self.ai_api_base_var.get()).strip(),
-                "api_key": str(self.ai_api_key_var.get()).strip(),
-                "model": str(self.ai_model_var.get()).strip(),
-                "timeout": self._coerce_int(self.ai_api_timeout_var.get(), default=30),
-            },
-            "local": {
-                "backend": str(self.ai_local_backend_var.get()).strip() or "cli",
-                "command": str(self.ai_local_command_var.get()).strip(),
-                "arguments": str(self.ai_local_args_var.get()).strip(),
-                "working_dir": str(self.ai_local_workdir_var.get()).strip(),
-                "python_backend": str(self.ai_python_backend_var.get()).strip(),
-                "model_path": str(self.ai_model_path_var.get()).strip(),
-                "max_tokens": self._coerce_int(self.ai_model_max_tokens_var.get(), default=256),
-                "temperature": float(self.ai_model_temperature_var.get() or 0.4),
-            },
-            "profiles": {
-                "base": str(self.ai_base_persona_var.get()).strip(),
-                "active_count": self._coerce_int(self.ai_active_team_count_var.get(), default=12),
-                "team_profiles": team_profiles,
-            },
-        }
-        return settings
-
-    def get_ai_settings(self) -> dict[str, object]:
-        settings = self._collect_ai_settings()
-        try:
-            self._save_ai_settings(settings)
-        except Exception:
-            pass
-        return settings
-
-    @staticmethod
-    def _coerce_int(value: object, default: int = 0) -> int:
-        try:
-            return int(value) if value not in (None, "") else default
-        except Exception:
-            return default
-
-    def _save_ai_settings(self, settings: dict[str, object]) -> None:
-        try:
-            AI_SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-            with AI_SETTINGS_PATH.open("w", encoding="utf-8") as fh:
-                json.dump(settings, fh, indent=2)
-        except Exception:
-            pass
-
-    def get_persona_choice_items(self) -> list[tuple[str, str]]:
-        items: list[tuple[str, str]] = [("None", "none"), ("Base Persona", "base")]
-        try:
-            for idx, team in enumerate(self.model.get_teams()):
-                items.append((f"Team: {team}", f"team:{idx}"))
-        except Exception:
-            pass
-        return items
 
     # ------------------------------------------------------------------
     # Player scanning + list management
@@ -2895,172 +2673,6 @@ class PlayerEditorApp:
     def _trade_ensure_slot_entries(self) -> None:
         """Retained for backward compatibility; package entries are derived at render time."""
         self.trade_state.select_slot(self.trade_selected_slot)
-
-    # ------------------------------------------------------------------
-    # Agent runtime (PPO)
-    # ------------------------------------------------------------------
-    @staticmethod
-    def _resolve_agent_runtime_class() -> type["AgentRuntime"]:
-        from ..gm_rl.runtime import AgentRuntime
-
-        return AgentRuntime
-
-    @staticmethod
-    def _resolve_agent_adapter_classes() -> tuple[type["EditorLiveAdapter"], type["LocalMockAdapter"]]:
-        from ..gm_rl.adapters.editor_live import EditorLiveAdapter
-        from ..gm_rl.adapters.local_mock import LocalMockAdapter
-
-        return EditorLiveAdapter, LocalMockAdapter
-
-    def _ensure_agent_runtime(self) -> "AgentRuntime":
-        if self.agent_runtime is None:
-            try:
-                runtime_class = self._resolve_agent_runtime_class()
-            except Exception as exc:
-                error_msg = f"Agent runtime unavailable: {exc}"
-                self._append_agent_log(f"Error: {error_msg}")
-                self._set_agent_status(error_msg)
-                raise
-            self.agent_runtime = runtime_class(lambda name, writes: self._build_agent_adapter(name, writes))
-        return self.agent_runtime
-
-    def _build_agent_adapter(self, name: str, apply_writes: bool) -> "EditorAdapter":
-        try:
-            editor_live_adapter_cls, local_mock_adapter_cls = self._resolve_agent_adapter_classes()
-        except Exception as exc:
-            error_msg = f"Agent adapters unavailable: {exc}"
-            self._append_agent_log(f"Error: {error_msg}")
-            self._set_agent_status(error_msg)
-            raise
-        adapter_name = (name or "mock").strip().lower()
-        if adapter_name == "live":
-            return editor_live_adapter_cls(model=self.model, dry_run=not apply_writes, seed=random.randint(1, 10_000))
-        return local_mock_adapter_cls(seed=random.randint(1, 10_000))
-
-    def _agent_refresh_snapshot(self) -> None:
-        adapter = self._build_agent_adapter(self.agent_adapter_var.get(), self.agent_apply_writes_var.get())
-        try:
-            state = adapter.load_roster_state(seed=random.randint(1, 10_000))
-            msg = f"Snapshot loaded ({len(state.players)} players / {len(state.teams)} teams) using {self.agent_adapter_var.get()} adapter."
-        except Exception as exc:  # noqa: BLE001
-            msg = f"Agent snapshot failed: {exc}"
-        self._set_agent_status(msg)
-
-    def _agent_start_evaluate(self) -> None:
-        runtime = self._ensure_agent_runtime()
-        try:
-            team_id = int(self.agent_team_id_var.get() or 1)
-        except Exception:
-            team_id = 1
-        try:
-            episodes = int(self.agent_episodes_var.get() or 3)
-        except Exception:
-            episodes = 3
-        runtime.start_evaluate(
-            adapter=self.agent_adapter_var.get(),
-            config_path=self.agent_config_var.get() or None,
-            checkpoint=self.agent_checkpoint_var.get() or None,
-            episodes=max(1, episodes),
-            team_id=team_id,
-            apply_writes=self.agent_apply_writes_var.get(),
-        )
-        self._set_agent_status("Evaluation started ...")
-
-    def _agent_start_live_assist(self) -> None:
-        runtime = self._ensure_agent_runtime()
-        try:
-            team_id = int(self.agent_team_id_var.get() or 1)
-        except Exception:
-            team_id = 1
-        runtime.start_live_assist(
-            adapter=self.agent_adapter_var.get(),
-            config_path=self.agent_config_var.get() or None,
-            checkpoint=self.agent_checkpoint_var.get() or None,
-            team_id=team_id,
-            apply_writes=self.agent_apply_writes_var.get(),
-        )
-        self._set_agent_status("Live assist started ...")
-
-    def _agent_start_training(self) -> None:
-        runtime = self._ensure_agent_runtime()
-        runtime.start_training(config_path=self.agent_config_var.get() or None)
-        self._set_agent_status("Training started ...")
-
-    def _agent_stop_runtime(self) -> None:
-        if self.agent_runtime:
-            self.agent_runtime.stop()
-            self._set_agent_status("Agent stopped.")
-
-    def _agent_pick_checkpoint(self) -> None:
-        self._open_file_dialog("Select checkpoint", callback=lambda path: self._set_agent_checkpoint(path))
-
-    def _agent_pick_config(self) -> None:
-        self._open_file_dialog("Select config", callback=lambda path: self._set_agent_config(path))
-
-    def _set_agent_checkpoint(self, path: str | None) -> None:
-        if path:
-            self.agent_checkpoint_var.set(str(path))
-            if self.agent_checkpoint_input and dpg.does_item_exist(self.agent_checkpoint_input):
-                dpg.set_value(self.agent_checkpoint_input, str(path))
-
-    def _set_agent_config(self, path: str | None) -> None:
-        if path:
-            self.agent_config_var.set(str(path))
-            if self.agent_config_input and dpg.does_item_exist(self.agent_config_input):
-                dpg.set_value(self.agent_config_input, str(path))
-
-    def _set_agent_status(self, text: str) -> None:
-        self.agent_status_var.set(text)
-        if self.agent_status_text_tag and dpg.does_item_exist(self.agent_status_text_tag):
-            dpg.set_value(self.agent_status_text_tag, text)
-
-    def _append_agent_log(self, text: str) -> None:
-        if not text:
-            return
-        self.agent_log_lines.append(text)
-        # keep last 200 lines to avoid oversized widget
-        self.agent_log_lines = self.agent_log_lines[-200:]
-        if self.agent_log_tag and dpg.does_item_exist(self.agent_log_tag):
-            dpg.set_value(self.agent_log_tag, "\n".join(self.agent_log_lines))
-
-    def _start_agent_polling(self) -> None:
-        if self.agent_polling:
-            return
-        self.agent_polling = True
-        self.after(250, self._poll_agent_events)
-
-    def _poll_agent_events(self) -> None:
-        runtime = self.agent_runtime
-        if runtime is not None:
-            try:
-                while not runtime.events.empty():
-                    evt = runtime.events.get_nowait()
-                    etype = evt.get("type")
-                    if etype == "metrics":
-                        metrics = evt.get("metrics", {})
-                        msg = (
-                            f"Mean reward {metrics.get('mean_reward', 0):.3f} "
-                            f"(episodes={metrics.get('episodes', 0)})"
-                        )
-                        self._set_agent_status(msg)
-                        self._append_agent_log(msg)
-                    elif etype == "step":
-                        reward_val = evt.get("reward", 0.0)
-                        meta = evt.get("metadata", {})
-                        self._append_agent_log(f"Step reward {reward_val:.3f} | meta {meta}")
-                    elif etype == "log":
-                        self._append_agent_log(str(evt.get("message", "")))
-                    elif etype == "error":
-                        self._append_agent_log(f"Error: {evt.get('message')}")
-                        self._set_agent_status(f"Error: {evt.get('message')}")
-                    elif etype == "done":
-                        mode = evt.get("mode", "")
-                        self._append_agent_log(f"{mode or 'run'} finished.")
-                        self._set_agent_status(f"{mode or 'Agent'} finished.")
-            except Exception:
-                pass
-        if self.agent_polling:
-            self.after(300, self._poll_agent_events)
 
 
 __all__ = ["PlayerEditorApp"]

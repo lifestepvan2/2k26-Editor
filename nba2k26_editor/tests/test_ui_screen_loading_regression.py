@@ -206,72 +206,6 @@ def test_trade_refresh_team_options_bootstraps_from_refresh() -> None:
     assert app.render_calls == 1
 
 
-def test_show_ai_builds_screen_and_bridge_lazily(monkeypatch) -> None:
-    ai_build_calls = 0
-
-    def _fake_build_ai(app) -> None:
-        nonlocal ai_build_calls
-        ai_build_calls += 1
-        app.screen_tags["ai"] = "screen_ai"
-
-    monkeypatch.setattr(app_module, "build_ai_screen", _fake_build_ai)
-    app = PlayerEditorApp(_AppModelStub())
-    app._lazy_screen_builders["ai"] = _fake_build_ai
-
-    shown: list[str] = []
-    app._show_screen = lambda key: shown.append(key)  # type: ignore[assignment]
-    bridge_calls = 0
-
-    def _fake_start_bridge() -> None:
-        nonlocal bridge_calls
-        bridge_calls += 1
-        app.control_bridge = object()
-
-    app._start_control_bridge = _fake_start_bridge  # type: ignore[assignment]
-
-    assert app.control_bridge is None
-    app.show_ai()
-    app.show_ai()
-
-    assert ai_build_calls == 1
-    assert bridge_calls == 1
-    assert shown == ["ai", "ai"]
-
-
-def test_show_agent_builds_screen_and_starts_polling_lazily(monkeypatch) -> None:
-    agent_build_calls = 0
-
-    def _fake_build_agent(app) -> None:
-        nonlocal agent_build_calls
-        agent_build_calls += 1
-        app.screen_tags["agent"] = "screen_agent"
-
-    monkeypatch.setattr(app_module, "build_agent_screen", _fake_build_agent)
-    app = PlayerEditorApp(_AppModelStub())
-    app._lazy_screen_builders["agent"] = _fake_build_agent
-
-    shown: list[str] = []
-    app._show_screen = lambda key: shown.append(key)  # type: ignore[assignment]
-    polling_calls = 0
-
-    def _fake_start_polling() -> None:
-        nonlocal polling_calls
-        if app.agent_polling:
-            return
-        polling_calls += 1
-        app.agent_polling = True
-
-    app._start_agent_polling = _fake_start_polling  # type: ignore[assignment]
-
-    assert app.agent_polling is False
-    app.show_agent()
-    app.show_agent()
-
-    assert agent_build_calls == 1
-    assert polling_calls == 1
-    assert shown == ["agent", "agent"]
-
-
 def test_show_nba_history_routes_to_history_page_and_refreshes() -> None:
     app = PlayerEditorApp(_AppModelStub())
     shown: list[str] = []
@@ -409,8 +343,6 @@ def test_all_non_home_screens_are_lazy_built_once(monkeypatch) -> None:
     monkeypatch.setattr(app_module, "build_stadium_screen", _make_builder("stadium"))
     monkeypatch.setattr(app_module, "build_excel_screen", _make_builder("excel"))
     monkeypatch.setattr(app_module, "build_trade_players_screen", _make_builder("trade"))
-    monkeypatch.setattr(app_module, "build_ai_screen", _make_builder("ai"))
-    monkeypatch.setattr(app_module, "build_agent_screen", _make_builder("agent"))
 
     app = PlayerEditorApp(_AppModelStub())
     app._show_screen = lambda _key: None  # type: ignore[assignment]
@@ -419,8 +351,6 @@ def test_all_non_home_screens_are_lazy_built_once(monkeypatch) -> None:
     app._refresh_trade_data = lambda: None  # type: ignore[assignment]
     app._refresh_staff_list = lambda: None  # type: ignore[assignment]
     app._refresh_stadium_list = lambda: None  # type: ignore[assignment]
-    app._start_control_bridge = lambda: None  # type: ignore[assignment]
-    app._start_agent_polling = lambda: None  # type: ignore[assignment]
 
     app.show_players()
     app.show_players()
@@ -438,10 +368,6 @@ def test_all_non_home_screens_are_lazy_built_once(monkeypatch) -> None:
     app.show_excel()
     app.show_trade_players()
     app.show_trade_players()
-    app.show_ai()
-    app.show_ai()
-    app.show_agent()
-    app.show_agent()
 
     assert counts == {
         "players": 1,
@@ -452,8 +378,6 @@ def test_all_non_home_screens_are_lazy_built_once(monkeypatch) -> None:
         "stadium": 1,
         "excel": 1,
         "trade": 1,
-        "ai": 1,
-        "agent": 1,
     }
 
 

@@ -1,0 +1,20 @@
+# ── Core runtime ─────────────────────────────────────────────────────────────
+# Dear PyGui is the only hard runtime dependency.
+dearpygui
+
+# ── Optional runtime (import-guarded, enables extra features) ─────────────────
+# psutil: more reliable game-process discovery (memory layer + dynamic bases).
+# psutil
+
+# openpyxl: required for the Excel import/export screen (nba2k26_editor/importing/).
+# openpyxl
+
+# ── Dev / offset-build scripts (not required at app runtime) ─────────────────
+# pandas: used by nba2k26_editor/Offsets/build_mega_offsets.py only.
+# pandas
+
+# ── Testing ──────────────────────────────────────────────────────────────────
+# pytest
+
+# ── Packaging ────────────────────────────────────────────────────────────────
+# pyinstaller
