@@ -47,7 +47,7 @@ def _run_child_full_editor_if_requested(argv: list[str] | None = None) -> bool:
         return False
     child_args = [arg for arg in args if arg != "--child-full-editor"]
     try:
-        from nba2k_editor.entrypoints.full_editor import main as child_main
+        from nba2k26_editor.entrypoints.full_editor import main as child_main
     except ModuleNotFoundError as exc:
         missing = getattr(exc, "name", "") or "dependency"
         print(f"Missing dependency '{missing}'.")
@@ -66,7 +66,7 @@ def _run_child_full_editor_if_requested(argv: list[str] | None = None) -> bool:
 
 def _run_gui_main() -> None:
     try:
-        from nba2k_editor.entrypoints.gui import main as gui_main
+        from nba2k26_editor.entrypoints.gui import main as gui_main
     except ModuleNotFoundError as exc:
         missing = getattr(exc, "name", "") or "dependency"
         print(f"Missing dependency '{missing}'.")

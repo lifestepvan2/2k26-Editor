@@ -6,12 +6,12 @@ This module lifts the non-UI portions of PlayerDataModel from the monolithic
 """
 from __future__ import annotations
 
-import os
 import re
 import struct
 import threading
 import unicodedata
 from collections import Counter
+from pathlib import Path
 from typing import Dict, Sequence
 
 from ..core.conversions import (
@@ -34,6 +34,7 @@ from ..core.conversions import (
     to_int,
 )
 from ..core import offsets as offsets_mod
+from ..core.config import TEAM_DATA_CANDIDATES
 from ..core.perf import timed
 from ..core.offsets import (
     ATTR_IMPORT_ORDER,
@@ -124,14 +125,10 @@ class PlayerDataModel:
         }
         self._name_index_lock = threading.Lock()
         self._name_index_build_token = 0
-        team_candidates = [
-            "2K26 Team Data (10.18.24).txt",
-            "2K26 Team Data.txt",
-        ]
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        for name in team_candidates:
-            path = os.path.join(base_dir, name)
-            if os.path.isfile(path):
+        _models_dir = Path(__file__).resolve().parent
+        for name in TEAM_DATA_CANDIDATES:
+            path = _models_dir / name
+            if path.is_file():
                 mapping = self.parse_team_comments(path)
                 if mapping:
                     self.team_name_map = mapping

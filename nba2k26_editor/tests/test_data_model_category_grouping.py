@@ -1,7 +1,7 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from nba2k_editor.core import offsets as offsets_mod
-from nba2k_editor.models.data_model import PlayerDataModel
+from nba2k26_editor.core import offsets as offsets_mod
+from nba2k26_editor.models.data_model import PlayerDataModel
 
 
 def test_get_categories_for_super_groups_player_categories(monkeypatch):

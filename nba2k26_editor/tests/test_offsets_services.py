@@ -1,12 +1,12 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from nba2k_editor.core import offsets as offsets_mod
-from nba2k_editor.core.offset_cache import CachedOffsetPayload, OffsetCache
-from nba2k_editor.core.offset_loader import OffsetRepository
-from nba2k_editor.core.offset_resolver import OffsetResolveError, OffsetResolver
+from nba2k26_editor.core import offsets as offsets_mod
+from nba2k26_editor.core.offset_cache import CachedOffsetPayload, OffsetCache
+from nba2k26_editor.core.offset_loader import OffsetRepository
+from nba2k26_editor.core.offset_resolver import OffsetResolveError, OffsetResolver
 
 
 def test_offset_cache_target_roundtrip():

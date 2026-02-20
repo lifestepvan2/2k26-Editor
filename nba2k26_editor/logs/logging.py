@@ -313,7 +313,7 @@ def _load_dev_logger() -> Callable[..., logging.Logger] | None:
     return _load_logger_from_path(LOG_DIR / "dev_memory_logging.py")
 
 
-def get_memory_logger(name: str = "nba2k_editor.memory", filename: str = "memory.log") -> logging.Logger:
+def get_memory_logger(name: str = "nba2k26_editor.memory", filename: str = "memory.log") -> logging.Logger:
     """
     Return a configured logger for memory operations.
 
@@ -336,7 +336,7 @@ def get_memory_logger(name: str = "nba2k_editor.memory", filename: str = "memory
     return _null_logger(name)
 
 
-def get_ai_logger(name: str = "nba2k_editor.ai", filename: str = "ai.log") -> logging.Logger:
+def get_ai_logger(name: str = "nba2k26_editor.ai", filename: str = "ai.log") -> logging.Logger:
     if _truthy_env(_AI_LOG_ENV) or _truthy_env(_MEMORY_LOG_ENV):
         logger = _file_logger(name=name, filename=filename)
         _attach_scan_filter(logger)

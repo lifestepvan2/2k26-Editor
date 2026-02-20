@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from types import SimpleNamespace
 
@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("dearpygui.dearpygui")
 
-from nba2k_editor.entrypoints import full_editor
+from nba2k26_editor.entrypoints import full_editor
 
 
 class _MemStub:

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from types import SimpleNamespace
 from typing import Callable
@@ -7,9 +7,9 @@ import pytest
 
 pytest.importorskip("dearpygui.dearpygui")
 
-from nba2k_editor.ui.app import PlayerEditorApp
-from nba2k_editor.ui import app as app_mod
-from nba2k_editor.ui import excel_screen as excel_screen_mod
+from nba2k26_editor.ui.app import PlayerEditorApp
+from nba2k26_editor.ui import app as app_mod
+from nba2k26_editor.ui import excel_screen as excel_screen_mod
 
 
 class _ContextStub:

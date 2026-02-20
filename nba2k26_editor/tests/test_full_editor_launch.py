@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 
-from nba2k_editor.ui.full_editor_launch import build_launch_command
+from nba2k26_editor.ui.full_editor_launch import build_launch_command
 
 
 def test_build_launch_command_source_mode(monkeypatch) -> None:
@@ -10,7 +10,7 @@ def test_build_launch_command_source_mode(monkeypatch) -> None:
 
     cmd = build_launch_command(editor="team", index=5)
 
-    assert cmd[:3] == [sys.executable, "-m", "nba2k_editor.entrypoints.full_editor"]
+    assert cmd[:3] == [sys.executable, "-m", "nba2k26_editor.entrypoints.full_editor"]
     assert cmd[-4:] == ["--editor", "team", "--index", "5"]
 
 

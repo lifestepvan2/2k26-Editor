@@ -1,7 +1,7 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from nba2k_editor.models.player import Player
-from nba2k_editor.ui.state.trade_state import TradeState
+from nba2k26_editor.models.player import Player
+from nba2k26_editor.ui.state.trade_state import TradeState
 
 
 def test_trade_state_add_and_package_projection():

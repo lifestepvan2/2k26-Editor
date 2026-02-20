@@ -50,7 +50,7 @@ def build_launch_command(
         raise ValueError(f"An index is required for {editor_key} editor launches.")
     if getattr(sys, "frozen", False):
         return [sys.executable, "--child-full-editor", *cmd_args]
-    return [sys.executable, "-m", "nba2k_editor.entrypoints.full_editor", *cmd_args]
+    return [sys.executable, "-m", "nba2k26_editor.entrypoints.full_editor", *cmd_args]
 
 
 def launch_full_editor_process(

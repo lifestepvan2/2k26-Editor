@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT = Path("nba2k_editor")
+ROOT = Path("nba2k26_editor")
 JSON_OUT = ROOT / "call_graph.json"
 MD_OUT = ROOT / "CALL_GRAPH.md"
 

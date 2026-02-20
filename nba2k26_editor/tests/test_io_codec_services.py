@@ -1,8 +1,8 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from nba2k_editor.models.services.io_codec import FieldSpec, IOCodec
-from nba2k_editor.models.services.player_service import PlayerService
-from nba2k_editor.models.services.team_service import TeamService
+from nba2k26_editor.models.services.io_codec import FieldSpec, IOCodec
+from nba2k26_editor.models.services.player_service import PlayerService
+from nba2k26_editor.models.services.team_service import TeamService
 
 
 class _StubModel:

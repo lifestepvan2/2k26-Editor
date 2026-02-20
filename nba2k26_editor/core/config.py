@@ -22,6 +22,13 @@ AUTOLOAD_EXTENSIONS = os.environ.get("NBA2K_EXTENSIONS_AUTOLOAD", "").strip().lo
 # Offsets and schema files (single unified bundle under Offsets/offsets.json)
 DEFAULT_OFFSET_FILES: tuple[str, ...] = ("offsets.json",)
 
+# Candidate filenames for the legacy team-comments data file, searched in order.
+# The dated variant is tried first for backwards compatibility.
+TEAM_DATA_CANDIDATES: tuple[str, ...] = (
+    "2K26 Team Data (10.18.24).txt",
+    "2K26 Team Data.txt",
+)
+
 # Game module targets
 MODULE_NAME = "NBA2K26.exe"
 HOOK_TARGETS: tuple[tuple[str, str], ...] = (
@@ -68,6 +75,7 @@ __all__ = [
     "HOOK_TARGET_LABELS",
     "ALLOWED_MODULE_NAMES",
     "CACHE_DIR",
+    "TEAM_DATA_CANDIDATES",
     "PRIMARY_BG",
     "PANEL_BG",
     "INPUT_BG",

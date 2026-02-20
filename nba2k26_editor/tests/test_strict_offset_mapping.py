@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from copy import deepcopy
 
 import pytest
 
-from nba2k_editor.core import offsets as offsets_mod
-from nba2k_editor.models.data_model import PlayerDataModel
+from nba2k26_editor.core import offsets as offsets_mod
+from nba2k26_editor.models.data_model import PlayerDataModel
 
 
 _OFFSET_STATE_KEYS = (

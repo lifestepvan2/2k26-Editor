@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 import sys
@@ -6,12 +6,12 @@ import importlib
 
 import pytest
 
-from nba2k_editor.core.config import MODULE_NAME
-from nba2k_editor.core.offsets import MAX_PLAYERS, initialize_offsets
-from nba2k_editor.memory.game_memory import GameMemory
-from nba2k_editor.models.data_model import PlayerDataModel
-from nba2k_editor.models.player import Player
-from nba2k_editor.models.schema import FieldMetadata
+from nba2k26_editor.core.config import MODULE_NAME
+from nba2k26_editor.core.offsets import MAX_PLAYERS, initialize_offsets
+from nba2k26_editor.memory.game_memory import GameMemory
+from nba2k26_editor.models.data_model import PlayerDataModel
+from nba2k26_editor.models.player import Player
+from nba2k26_editor.models.schema import FieldMetadata
 
 _ID_FIELD_NAMES = [
     "Current Year Stat ID",
@@ -319,7 +319,7 @@ def test_live_tyrese_maxey_full_editor_season_slot_load_matches_reference_table(
         pytest.skip("Set NBA2K_EDITOR_LIVE_STATS_VERIFY=1 to run live stats alignment assertions.")
 
     pytest.importorskip("dearpygui.dearpygui")
-    full_player_editor_mod = importlib.import_module("nba2k_editor.ui.full_player_editor")
+    full_player_editor_mod = importlib.import_module("nba2k26_editor.ui.full_player_editor")
     FullPlayerEditor = full_player_editor_mod.FullPlayerEditor
 
     model, player, categories, season_ptrs = _load_live_tyrese_context()

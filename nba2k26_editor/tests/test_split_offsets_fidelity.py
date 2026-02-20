@@ -1,6 +1,6 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
-from nba2k_editor.core import offsets as offsets_mod
+from nba2k26_editor.core import offsets as offsets_mod
 
 
 def _load_2k26_config() -> dict[str, object]:

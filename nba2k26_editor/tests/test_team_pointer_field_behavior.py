@@ -1,9 +1,9 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from types import SimpleNamespace
 
-from nba2k_editor.models import data_model as data_model_mod
-from nba2k_editor.models.data_model import PlayerDataModel
+from nba2k26_editor.models import data_model as data_model_mod
+from nba2k26_editor.models.data_model import PlayerDataModel
 
 
 def test_decode_team_pointer_field_displays_team_name(monkeypatch) -> None:

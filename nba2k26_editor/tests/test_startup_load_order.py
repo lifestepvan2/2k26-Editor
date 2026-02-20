@@ -1,16 +1,16 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from types import SimpleNamespace
 
 import pytest
 
-from nba2k_editor.core import offsets as offsets_mod
-from nba2k_editor.models import data_model as data_model_mod
-from nba2k_editor.models.data_model import PlayerDataModel
+from nba2k26_editor.core import offsets as offsets_mod
+from nba2k26_editor.models import data_model as data_model_mod
+from nba2k26_editor.models.data_model import PlayerDataModel
 
 pytest.importorskip("dearpygui.dearpygui")
-from nba2k_editor.ui import app as app_module
-from nba2k_editor.ui.app import PlayerEditorApp
+from nba2k26_editor.ui import app as app_module
+from nba2k26_editor.ui.app import PlayerEditorApp
 
 
 class _StubMem:

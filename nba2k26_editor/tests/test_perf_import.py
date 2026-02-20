@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 import time
@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from nba2k_editor.core.perf import clear, summarize
-from nba2k_editor.importing.excel_import import export_excel_workbook, import_excel_workbook
+from nba2k26_editor.core.perf import clear, summarize
+from nba2k26_editor.importing.excel_import import export_excel_workbook, import_excel_workbook
 
 openpyxl = pytest.importorskip("openpyxl")
 

@@ -1,11 +1,11 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import pytest
 
 pytest.importorskip("dearpygui.dearpygui")
 
-from nba2k_editor.ui import full_player_editor as full_player_editor_mod
-from nba2k_editor.ui.full_player_editor import FullPlayerEditor
+from nba2k26_editor.ui import full_player_editor as full_player_editor_mod
+from nba2k26_editor.ui.full_player_editor import FullPlayerEditor
 
 
 def test_sanitize_input_int_range_clamps_to_dpg_int_bounds() -> None:

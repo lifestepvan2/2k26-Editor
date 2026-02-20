@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sys
 import types
@@ -8,12 +8,12 @@ from typing import Any
 sys.modules.setdefault("dearpygui", types.ModuleType("dearpygui"))
 sys.modules.setdefault("dearpygui.dearpygui", types.ModuleType("dearpygui.dearpygui"))
 
-from nba2k_editor.models.player import Player
-from nba2k_editor.models.schema import FieldMetadata
-from nba2k_editor.ui import full_player_editor as full_player_editor_mod
-from nba2k_editor.ui import full_team_editor as full_team_editor_mod
-from nba2k_editor.ui.full_player_editor import FullPlayerEditor
-from nba2k_editor.ui.full_team_editor import FullTeamEditor
+from nba2k26_editor.models.player import Player
+from nba2k26_editor.models.schema import FieldMetadata
+from nba2k26_editor.ui import full_player_editor as full_player_editor_mod
+from nba2k26_editor.ui import full_team_editor as full_team_editor_mod
+from nba2k26_editor.ui.full_player_editor import FullPlayerEditor
+from nba2k26_editor.ui.full_team_editor import FullTeamEditor
 
 
 class _DPGStub:

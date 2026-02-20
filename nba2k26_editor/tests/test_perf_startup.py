@@ -1,16 +1,16 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import os
 import time
 
 import pytest
 
-from nba2k_editor.core import offsets as offsets_mod
-from nba2k_editor.core.perf import clear, summarize
-from nba2k_editor.models import data_model as data_model_mod
+from nba2k26_editor.core import offsets as offsets_mod
+from nba2k26_editor.core.perf import clear, summarize
+from nba2k26_editor.models import data_model as data_model_mod
 
 pytest.importorskip("dearpygui.dearpygui")
-from nba2k_editor.entrypoints import gui
+from nba2k26_editor.entrypoints import gui
 
 
 class _StubMem:

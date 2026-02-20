@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import subprocess
@@ -14,7 +14,7 @@ def test_ui_app_import_does_not_eager_load_heavy_agent_dependencies() -> None:
     project_root = Path(__file__).resolve().parents[2]
     script = (
         "import json, sys; "
-        "import nba2k_editor.ui.app; "
+        "import nba2k26_editor.ui.app; "
         "print(json.dumps({'torch': 'torch' in sys.modules, 'pandas': 'pandas' in sys.modules}))"
     )
     proc = subprocess.run(

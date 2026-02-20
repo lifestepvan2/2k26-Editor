@@ -4,17 +4,17 @@ dearpygui
 
 # ── Optional runtime (import-guarded, enables extra features) ─────────────────
 # psutil: more reliable game-process discovery (memory layer + dynamic bases).
-# psutil
+psutil
 
 # openpyxl: required for the Excel import/export screen (nba2k26_editor/importing/).
-# openpyxl
+openpyxl
 
 # ── Dev / offset-build scripts (not required at app runtime) ─────────────────
 # pandas: used by nba2k26_editor/Offsets/build_mega_offsets.py only.
-# pandas
+pandas
 
 # ── Testing ──────────────────────────────────────────────────────────────────
-# pytest
+pytest
 
 # ── Packaging ────────────────────────────────────────────────────────────────
-# pyinstaller
+pyinstaller
