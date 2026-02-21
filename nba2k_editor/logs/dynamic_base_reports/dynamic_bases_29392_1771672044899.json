@@ -1,0 +1,126 @@
+{
+  "pid": 29392,
+  "elapsed_sec": 100.746,
+  "player_hits": [
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x12A67BFD0"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x12A6A74D0"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x12AA99B08"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x12AB26748"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x12A67CA50"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x12A6A7A10"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x12AB04FC8"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x12AD341D8"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x131010670"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x1310ED7A0"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x1313C54C8"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x1315E6CE8"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x13161DA50"
+    },
+    {
+      "target": "Tyrese Maxey",
+      "address": "0x131626D50"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x131083888"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x131150878"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x13118D1C0"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x1311A93F0"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x131387DB8"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x1315FB7A8"
+    },
+    {
+      "target": "Victor Wembanyama",
+      "address": "0x131622D00"
+    }
+  ],
+  "player_candidates": [
+    {
+      "address": "0x1315E6CE8",
+      "votes": 10
+    },
+    {
+      "address": "0x1315E6850",
+      "votes": 10
+    },
+    {
+      "address": "0x1315E63B8",
+      "votes": 10
+    },
+    {
+      "address": "0x1315E5F20",
+      "votes": 10
+    },
+    {
+      "address": "0x1315E5A88",
+      "votes": 10
+    }
+  ],
+  "team_candidates": [
+    {
+      "address": "0x1318117D0",
+      "votes": 1
+    },
+    {
+      "address": "0x1318A1810",
+      "votes": 1
+    }
+  ],
+  "player_rejected_votes": 10,
+  "discovered_bases": {
+    "Team": 5125511120
+  }
+}

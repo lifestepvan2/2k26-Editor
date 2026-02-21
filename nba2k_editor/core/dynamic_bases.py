@@ -10,6 +10,8 @@ from __future__ import annotations
 import ctypes
 import sys
 import time
+import json
+from pathlib import Path
 from typing import Iterable, Iterator, Tuple
 from concurrent.futures import ThreadPoolExecutor
 from ..memory.scan_utils import encode_wstring as _shared_encode_wstring, find_all as _shared_find_all
@@ -576,6 +578,20 @@ def find_dynamic_bases(
         bases["Team"] = int(team_base_hint)
         bases["Player"] = int(player_base_hint)
         report["fallback_offsets"] = True
+
+    # Persist a copy of the scan report for debugging and offline analysis.
+    try:
+        log_root = Path(__file__).parent.parent / "logs" / "dynamic_base_reports"
+        log_root.mkdir(parents=True, exist_ok=True)
+        stamp = int(time.time() * 1000)
+        fname = f"dynamic_bases_{proc_pid or 0}_{stamp}.json"
+        out = dict(report or {})
+        # Include discovered bases for easy correlation.
+        out["discovered_bases"] = {k: int(v) for k, v in (bases or {}).items()} if bases else {}
+        (log_root / fname).write_text(json.dumps(out, indent=2), encoding="utf-8")
+    except Exception:
+        # Best-effort logging only — do not interfere with normal control flow.
+        pass
 
     return bases, report
 
