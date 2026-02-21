@@ -6,11 +6,11 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('nba2k26_editor\\Offsets', 'nba2k26_editor\\Offsets'),
-        ('nba2k26_editor\\NBA Player Data', 'nba2k26_editor\\NBA Player Data'),
+        ('nba2k_editor\\Offsets', 'nba2k_editor\\Offsets'),
+        ('nba2k_editor\\NBA Player Data', 'nba2k_editor\\NBA Player Data'),
     ],
     hiddenimports=[
-        'nba2k26_editor.dual_base_mirror',
+        'nba2k_editor.dual_base_mirror',
     ],
     hookspath=[],
     hooksconfig={},

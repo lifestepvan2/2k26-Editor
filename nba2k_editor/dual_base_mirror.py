@@ -8,8 +8,8 @@ from typing import Iterable
 import tkinter as tk
 from tkinter import messagebox
 
-from nba2k26_editor.core import offsets as offsets_mod
-from nba2k26_editor.core.config import (
+from nba2k_editor.core import offsets as offsets_mod
+from nba2k_editor.core.config import (
     ACCENT_BG,
     BUTTON_ACTIVE_BG,
     BUTTON_BG,
@@ -19,8 +19,8 @@ from nba2k26_editor.core.config import (
     TEXT_PRIMARY,
     TEXT_SECONDARY,
 )
-from nba2k26_editor.core.extensions import register_player_panel_extension
-from nba2k26_editor.memory.game_memory import GameMemory
+from nba2k_editor.core.extensions import register_player_panel_extension
+from nba2k_editor.memory.game_memory import GameMemory
 CONFIG_PATH = CONFIG_DIR / "dual_base_mirror.json"
 
 
