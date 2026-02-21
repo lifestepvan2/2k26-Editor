@@ -1,4 +1,30 @@
-nba2k26_editor/*/__pycache__/
-nba2k26_editor/*/__pycache__/
-nba2k26_editor/__pycache__/__init__.cpython-312.pyc
-nba2k26_editor/__pycache__/dual_base_mirror.cpython-312.pyc
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+nba2k_editor/logs/*.log
+
+# Cache
+nba2k_editor/cache/
