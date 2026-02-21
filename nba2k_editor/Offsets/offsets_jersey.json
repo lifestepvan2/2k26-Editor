@@ -1,680 +1,926 @@
 {
   "Jerseys offsets": [
     {
-      "Colors": [
+      "Jersey Colors": [
         {
-          "Colors": [
-            {
-              "normalized_name": "PRIMARYCOLOR",
-              "display_name": "Primary Color",
-              "versions": {
-                "2K26": {
-                  "address": 272,
-                  "group": "Colors",
-                  "hex": "0x110",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
+          "normalized_name": "ARMACCESSORYCOLORAWAY",
+          "display_name": "Arm Accessory Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 333,
+              "hex": "0x14D",
+              "length": 3,
+              "startBit": 1,
+              "type": "combo"
             },
-            {
-              "normalized_name": "QUATERNARYCOLOR",
-              "display_name": "Quaternary Color",
-              "versions": {
-                "2K26": {
-                  "address": 284,
-                  "group": "Colors",
-                  "hex": "0x11C",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "QUINTARYCOLOR",
-              "display_name": "Quintary Color",
-              "versions": {
-                "2K26": {
-                  "address": 288,
-                  "group": "Colors",
-                  "hex": "0x120",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "SECONDARYCOLORSHOESCOLOR",
-              "display_name": "Secondary Color Shoes Color",
-              "versions": {
-                "2K26": {
-                  "address": 276,
-                  "group": "Colors",
-                  "hex": "0x114",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "SEXTARYCOLOR",
-              "display_name": "Sextary Color",
-              "versions": {
-                "2K26": {
-                  "address": 292,
-                  "group": "Colors",
-                  "hex": "0x124",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "TERTIARYCOLOR",
-              "display_name": "Tertiary Color",
-              "versions": {
-                "2K26": {
-                  "address": 280,
-                  "group": "Colors",
-                  "hex": "0x118",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
+            "2K26": {
+              "address": 361,
+              "hex": "0x169",
+              "length": 3,
+              "startBit": 1,
+              "type": "Integer"
             }
-          ]
+          }
+        },
+        {
+          "normalized_name": "ARMACCESSORYCOLORHOME",
+          "display_name": "Arm Accessory Color Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 332,
+              "hex": "0x14C",
+              "length": 3,
+              "startBit": 6,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 360,
+              "hex": "0x168",
+              "length": 3,
+              "startBit": 6,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "HEADBANDCOLORAWAY",
+          "display_name": "Headband Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 333,
+              "hex": "0x14D",
+              "length": 3,
+              "startBit": 7,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 361,
+              "hex": "0x169",
+              "length": 3,
+              "startBit": 7,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "HEADBANDCOLORHOME",
+          "display_name": "Headband Color Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 333,
+              "hex": "0x14D",
+              "length": 3,
+              "startBit": 4,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 361,
+              "hex": "0x169",
+              "length": 3,
+              "startBit": 4,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "PRIMARYCOLOR",
+          "display_name": "Jersey Colors - PRIMARY_COLOR",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 268,
+              "hex": "0x10C",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 296,
+              "hex": "0x128",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "QUATERNARYCOLOR",
+          "display_name": "Jersey Colors - QUATERNARY_COLOR",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 280,
+              "hex": "0x118",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 308,
+              "hex": "0x134",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "TERTIARYCOLOR",
+          "display_name": "Jersey Colors - TERTIARY_COLOR",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 276,
+              "hex": "0x114",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 304,
+              "hex": "0x130",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "LEGACCESSORYCOLORAWAY",
+          "display_name": "Leg Accessory Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 332,
+              "hex": "0x14C",
+              "length": 3,
+              "startBit": 3,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 360,
+              "hex": "0x168",
+              "length": 3,
+              "startBit": 3,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "LEGACCESSORYCOLORHOME",
+          "display_name": "Leg Accessory Color Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 332,
+              "hex": "0x14C",
+              "length": 3,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 360,
+              "hex": "0x168",
+              "length": 3,
+              "startBit": 0,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "PRIMARYCOLORSOCK",
+          "display_name": "Primary Color Sock",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 300,
+              "hex": "0x12C",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 328,
+              "hex": "0x148",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "QUATERNARYCOLORSOCK",
+          "display_name": "Quaternary Color Sock",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 312,
+              "hex": "0x138",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 340,
+              "hex": "0x154",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "QUINTARYCOLOR",
+          "display_name": "Quintary Color",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 284,
+              "hex": "0x11C",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 312,
+              "hex": "0x138",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "QUINTARYCOLORSOCK",
+          "display_name": "Quintary Color Sock",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 316,
+              "hex": "0x13C",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 344,
+              "hex": "0x158",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SECONDARYCOLORACCESSORY",
+          "display_name": "Secondary Color Accessory",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 272,
+              "hex": "0x110",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 300,
+              "hex": "0x12C",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SECONDARYCOLORSHOESCOLOR",
+          "display_name": "Secondary Color Shoes Color",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 248,
+              "hex": "0xF8",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 276,
+              "hex": "0x114",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SECONDARYCOLORSOCK",
+          "display_name": "Secondary Color Sock",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 304,
+              "hex": "0x130",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 332,
+              "hex": "0x14C",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SEXTARYCOLOR",
+          "display_name": "Sextary Color",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 264,
+              "hex": "0x108",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 292,
+              "hex": "0x124",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SHOEPRIMARYCOLORAWAY",
+          "display_name": "Shoe Primary Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 296,
+              "hex": "0x128",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 324,
+              "hex": "0x144",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKCOLORAWAY",
+          "display_name": "Sock Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 335,
+              "hex": "0x14F",
+              "length": 3,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 363,
+              "hex": "0x16B",
+              "length": 3,
+              "startBit": 0,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKCOLORHOME",
+          "display_name": "Sock Color Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 334,
+              "hex": "0x14E",
+              "length": 3,
+              "startBit": 5,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 362,
+              "hex": "0x16A",
+              "length": 3,
+              "startBit": 5,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "TERTIARYCOLORSOCK",
+          "display_name": "Tertiary Color Sock",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 308,
+              "hex": "0x134",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 336,
+              "hex": "0x150",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "UNDERSHIRTCOLORAWAY",
+          "display_name": "Under Shirt Color Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 292,
+              "hex": "0x124",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 320,
+              "hex": "0x140",
+              "length": 3,
+              "type": "color"
+            }
+          }
+        },
+        {
+          "normalized_name": "UNDERSHIRTCOLORHOME",
+          "display_name": "Under Shirt Color Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 288,
+              "hex": "0x120",
+              "length": 24,
+              "startBit": 0,
+              "type": "color"
+            },
+            "2K26": {
+              "address": 316,
+              "hex": "0x13C",
+              "length": 3,
+              "type": "color"
+            }
+          }
         }
       ]
     },
     {
-      "Vitals": [
+      "Jersey Vitals": [
         {
-          "Combos": [
-            {
-              "normalized_name": "ARMACCESSORYCOLORAWAY",
-              "display_name": "Arm Accessory Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 361,
-                  "group": "Combos",
-                  "hex": "0x169",
-                  "length": 3,
-                  "startBit": 1,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "ARMACCESSORYCOLORHOME",
-              "display_name": "Arm Accessory Color Home",
-              "versions": {
-                "2K26": {
-                  "address": 360,
-                  "group": "Combos",
-                  "hex": "0x168",
-                  "length": 3,
-                  "startBit": 6,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "HEADBANDCOLORAWAY",
-              "display_name": "Headband Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 361,
-                  "group": "Combos",
-                  "hex": "0x169",
-                  "length": 3,
-                  "startBit": 7,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "HEADBANDCOLORHOME",
-              "display_name": "Headband Color Home",
-              "versions": {
-                "2K26": {
-                  "address": 361,
-                  "group": "Combos",
-                  "hex": "0x169",
-                  "length": 3,
-                  "startBit": 4,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "LEGACCESSORYCOLORAWAY",
-              "display_name": "Leg Accessory Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 360,
-                  "group": "Combos",
-                  "hex": "0x168",
-                  "length": 3,
-                  "startBit": 3,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "LEGACCESSORYCOLORHOME",
-              "display_name": "Leg Accessory Color Home",
-              "versions": {
-                "2K26": {
-                  "address": 360,
-                  "group": "Combos",
-                  "hex": "0x168",
-                  "length": 3,
-                  "startBit": 0,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKCOLORAWAY",
-              "display_name": "Sock Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 363,
-                  "group": "Combos",
-                  "hex": "0x16B",
-                  "length": 3,
-                  "startBit": 0,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKCOLORHOME",
-              "display_name": "Sock Color Home",
-              "versions": {
-                "2K26": {
-                  "address": 362,
-                  "group": "Combos",
-                  "hex": "0x16A",
-                  "length": 3,
-                  "startBit": 5,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
+          "normalized_name": "COLORLUMINANCELEVEL",
+          "display_name": "COLOR_LUMINANCE_LEVEL",
+          "versions": {
+            "2K23,2K24": {
+              "address": 323,
+              "hex": "0x143",
+              "length": 32,
+              "startBit": 4,
+              "type": "slider"
             }
-          ]
+          }
         },
         {
-          "Type": [
-            {
-              "normalized_name": "HEADBANDLOGOTYPE",
-              "display_name": "Headband Logo Type",
-              "versions": {
-                "2K26": {
-                  "address": 362,
-                  "group": "Type",
-                  "hex": "0x16A",
-                  "length": 2,
-                  "startBit": 3,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
+          "normalized_name": "EDITIONNAME",
+          "display_name": "Edition Name",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 92,
+              "hex": "0x5C",
+              "length": 512,
+              "startBit": 0,
+              "type": "string"
             },
-            {
-              "normalized_name": "ISALTERNATE",
-              "display_name": "Is Alternate",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 5,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "ISHOME",
-              "display_name": "Is Home",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 1,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "ISTEAMCREATEUNIFORM",
-              "display_name": "Is Team Create Uniform",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 2,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "MYTEAMINCLUDE",
-              "display_name": "MyTeam Include",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 3,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "NUMBERONSHORTS",
-              "display_name": "Number On Shorts",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 4,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
-            },
-            {
-              "normalized_name": "OVERRIDENBAPATCH",
-              "display_name": "Override NBA Patch",
-              "versions": {
-                "2K26": {
-                  "address": 358,
-                  "group": "Type",
-                  "hex": "0x166",
-                  "length": 1,
-                  "startBit": 6,
-                  "super_type": "Jersey",
-                  "type": "bitfield"
-                }
-              }
+            "2K26": {
+              "address": 104,
+              "hex": "0x68",
+              "length": 64,
+              "type": "WString"
             }
-          ]
+          }
         },
         {
-          "Accessory": [
-            {
-              "normalized_name": "PRIMARYCOLORACCESSORY",
-              "display_name": "Primary Color Accessory",
-              "versions": {
-                "2K26": {
-                  "address": 296,
-                  "group": "Accessory",
-                  "hex": "0x128",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "QUATERNARYCOLORACCESSORY",
-              "display_name": "Quaternary Color Accessory",
-              "versions": {
-                "2K26": {
-                  "address": 308,
-                  "group": "Accessory",
-                  "hex": "0x134",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "QUINTARYCOLORACCESSORY",
-              "display_name": "Quintary Color Accessory",
-              "versions": {
-                "2K26": {
-                  "address": 312,
-                  "group": "Accessory",
-                  "hex": "0x138",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "SECONDARYCOLORACCESSORY",
-              "display_name": "Secondary Color Accessory",
-              "versions": {
-                "2K26": {
-                  "address": 300,
-                  "group": "Accessory",
-                  "hex": "0x12C",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "SHOEPRIMARYCOLORAWAY",
-              "display_name": "Shoe Primary Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 324,
-                  "group": "Accessory",
-                  "hex": "0x144",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "TERTIARYCOLORACCESSORY",
-              "display_name": "Tertiary Color Accessory",
-              "versions": {
-                "2K26": {
-                  "address": 304,
-                  "group": "Accessory",
-                  "hex": "0x130",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "UNDERSHIRTCOLORAWAY",
-              "display_name": "Under Shirt Color Away",
-              "versions": {
-                "2K26": {
-                  "address": 320,
-                  "group": "Accessory",
-                  "hex": "0x140",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "UNDERSHIRTCOLORHOME",
-              "display_name": "Under Shirt Color Home",
-              "versions": {
-                "2K26": {
-                  "address": 316,
-                  "group": "Accessory",
-                  "hex": "0x13C",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
+          "normalized_name": "EDITIONCRC32B",
+          "display_name": "EDITION_CRC32B",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 84,
+              "hex": "0x54",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
             }
-          ]
+          }
         },
         {
-          "Sock": [
-            {
-              "normalized_name": "PRIMARYCOLORSOCK",
-              "display_name": "Primary Color Sock",
-              "versions": {
-                "2K26": {
-                  "address": 328,
-                  "group": "Sock",
-                  "hex": "0x148",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "QUATERNARYCOLORSOCK",
-              "display_name": "Quaternary Color Sock",
-              "versions": {
-                "2K26": {
-                  "address": 340,
-                  "group": "Sock",
-                  "hex": "0x154",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "QUINTARYCOLORSOCK",
-              "display_name": "Quintary Color Sock",
-              "versions": {
-                "2K26": {
-                  "address": 344,
-                  "group": "Sock",
-                  "hex": "0x158",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "SECONDARYCOLORSOCK",
-              "display_name": "Secondary Color Sock",
-              "versions": {
-                "2K26": {
-                  "address": 332,
-                  "group": "Sock",
-                  "hex": "0x14C",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
-            },
-            {
-              "normalized_name": "TERTIARYCOLORSOCK",
-              "display_name": "Tertiary Color Sock",
-              "versions": {
-                "2K26": {
-                  "address": 336,
-                  "group": "Sock",
-                  "hex": "0x150",
-                  "length": 3,
-                  "super_type": "Jersey",
-                  "type": "color"
-                }
-              }
+          "normalized_name": "FILENAME",
+          "display_name": "FILENAME",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 8,
+              "hex": "0x8",
+              "length": 512,
+              "startBit": 0,
+              "type": "string"
             }
-          ]
+          }
         },
         {
-          "Ungrouped": [
-            {
-              "normalized_name": "JACKETWARMUPCRC32B",
-              "display_name": "*Jacket Warmup CRC32B",
-              "versions": {
-                "2K26": {
-                  "address": 244,
-                  "hex": "0xF4",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "hex_bytes"
-                }
-              }
+          "normalized_name": "HEADBANDLOGOTYPE",
+          "display_name": "Headband Logo Type",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 334,
+              "hex": "0x14E",
+              "length": 2,
+              "startBit": 3,
+              "type": "combo"
             },
-            {
-              "normalized_name": "EDITIONNAME",
-              "display_name": "Edition Name",
-              "versions": {
-                "2K26": {
-                  "address": 104,
-                  "hex": "0x68",
-                  "length": 64,
-                  "super_type": "Jersey",
-                  "type": "wstring"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSAWAY",
-              "display_name": "Socks Away",
-              "versions": {
-                "2K26": {
-                  "address": 236,
-                  "hex": "0xEC",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSCOLORN1",
-              "display_name": "Socks Color N#1",
-              "versions": {
-                "2K26": {
-                  "address": 248,
-                  "hex": "0xF8",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSCOLORN2",
-              "display_name": "Socks Color N#2",
-              "versions": {
-                "2K26": {
-                  "address": 252,
-                  "hex": "0xFC",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSCOLORN3",
-              "display_name": "Socks Color N#3",
-              "versions": {
-                "2K26": {
-                  "address": 256,
-                  "hex": "0x100",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSCOLORN4",
-              "display_name": "Socks Color N#4",
-              "versions": {
-                "2K26": {
-                  "address": 260,
-                  "hex": "0x104",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSCOLORN5",
-              "display_name": "Socks Color N#5",
-              "versions": {
-                "2K26": {
-                  "address": 264,
-                  "hex": "0x108",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SOCKSHOME",
-              "display_name": "Socks Home",
-              "versions": {
-                "2K26": {
-                  "address": 232,
-                  "hex": "0xE8",
-                  "length": 4,
-                  "super_type": "Jersey",
-                  "type": "combo"
-                }
-              }
-            },
-            {
-              "normalized_name": "SPONSORPATCH",
-              "display_name": "Sponsor Patch",
-              "versions": {
-                "2K26": {
-                  "address": 72,
-                  "hex": "0x48",
-                  "length": 8,
-                  "super_type": "Jersey",
-                  "type": "string"
-                }
-              }
-            },
-            {
-              "normalized_name": "UNIFORMADDRESS",
-              "display_name": "Uniform Address",
-              "versions": {
-                "2K26": {
-                  "address": 0,
-                  "hex": "0x0",
-                  "super_type": "Jersey",
-                  "type": "address"
-                }
-              }
-            },
-            {
-              "normalized_name": "UNIFORMFILE",
-              "display_name": "Uniform File",
-              "versions": {
-                "2K26": {
-                  "address": 8,
-                  "hex": "0x8",
-                  "length": 72,
-                  "super_type": "Jersey",
-                  "type": "string"
-                }
-              }
+            "2K26": {
+              "address": 362,
+              "hex": "0x16A",
+              "length": 2,
+              "startBit": 3,
+              "type": "Integer"
             }
-          ]
+          }
+        },
+        {
+          "normalized_name": "ISALTERNATE",
+          "display_name": "Is Alternate",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 5,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 5,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "ISHOME",
+          "display_name": "Is Home",
+          "versions": {
+            "2K23": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 1,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 1,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "ISTEAMCREATEUNIFORM",
+          "display_name": "Is Team Create Uniform",
+          "versions": {
+            "2K22,2K23": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 1,
+              "type": "combo"
+            },
+            "2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 2,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 2,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "JACKETWARMUP",
+          "display_name": "Jacket Warmup",
+          "versions": {
+            "2K26": {
+              "address": 244,
+              "hex": "0xF4",
+              "length": 4,
+              "type": "hex_bytes"
+            },
+            "2K22,2K23,2K24": {
+              "address": 220,
+              "hex": "0xDC",
+              "length": 32,
+              "startBit": 0,
+              "type": "number"
+            }
+          }
+        },
+        {
+          "normalized_name": "LOGOBRAND",
+          "display_name": "LOGO_BRAND",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 323,
+              "hex": "0x143",
+              "length": 2,
+              "startBit": 0,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "LOGOTYPE",
+          "display_name": "LOGO_TYPE",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 322,
+              "hex": "0x142",
+              "length": 3,
+              "startBit": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "MYTEAMINCLUDE",
+          "display_name": "MyTeam Include",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 3,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 3,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "NUMBERONSHORTS",
+          "display_name": "Number On Shorts",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 4,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 4,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "OVERRIDENBAPATCH",
+          "display_name": "Override NBA Patch",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 330,
+              "hex": "0x14A",
+              "length": 1,
+              "startBit": 2,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 358,
+              "hex": "0x166",
+              "length": 1,
+              "startBit": 6,
+              "type": "Integer"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSAWAY",
+          "display_name": "Socks Away",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 212,
+              "hex": "0xD4",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 236,
+              "hex": "0xEC",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSCOLORN1",
+          "display_name": "Socks Color N#1",
+          "versions": {
+            "2K23,2K24": {
+              "address": 224,
+              "hex": "0xE0",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 248,
+              "hex": "0xF8",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSCOLORN2",
+          "display_name": "Socks Color N#2",
+          "versions": {
+            "2K23,2K24": {
+              "address": 228,
+              "hex": "0xE4",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 252,
+              "hex": "0xFC",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSCOLORN3",
+          "display_name": "Socks Color N#3",
+          "versions": {
+            "2K23,2K24": {
+              "address": 232,
+              "hex": "0xE8",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 256,
+              "hex": "0x100",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSCOLORN4",
+          "display_name": "Socks Color N#4",
+          "versions": {
+            "2K23,2K24": {
+              "address": 236,
+              "hex": "0xEC",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 260,
+              "hex": "0x104",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSCOLORN5",
+          "display_name": "Socks Color N#5",
+          "versions": {
+            "2K23,2K24": {
+              "address": 240,
+              "hex": "0xF0",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 264,
+              "hex": "0x108",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SOCKSHOME",
+          "display_name": "Socks Home",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 208,
+              "hex": "0xD0",
+              "length": 32,
+              "startBit": 0,
+              "type": "combo"
+            },
+            "2K26": {
+              "address": 232,
+              "hex": "0xE8",
+              "length": 4,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "SPONSORPATCH",
+          "display_name": "Sponsor Patch",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 72,
+              "hex": "0x48",
+              "length": 64,
+              "startBit": 0,
+              "type": "string"
+            },
+            "2K26": {
+              "address": 72,
+              "hex": "0x48",
+              "length": 8,
+              "type": "String"
+            }
+          }
+        },
+        {
+          "normalized_name": "TEAM",
+          "display_name": "TEAM",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 82,
+              "hex": "0x52",
+              "length": 16,
+              "startBit": 0,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "TYPE",
+          "display_name": "TYPE",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 320,
+              "hex": "0x140",
+              "length": 5,
+              "startBit": 0,
+              "type": "combo"
+            }
+          }
+        },
+        {
+          "normalized_name": "UNIFORMADDRESS",
+          "display_name": "Uniform Address",
+          "versions": {
+            "2K26": {
+              "address": 0,
+              "hex": "0x0",
+              "type": "address"
+            }
+          }
+        },
+        {
+          "normalized_name": "UNIFORMFILE",
+          "display_name": "Uniform File",
+          "versions": {
+            "2K26": {
+              "address": 8,
+              "hex": "0x8",
+              "length": 72,
+              "type": "String"
+            }
+          }
+        },
+        {
+          "normalized_name": "UNIQUEID",
+          "display_name": "UNIQUEID",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 80,
+              "hex": "0x50",
+              "length": 16,
+              "startBit": 0,
+              "type": "number"
+            }
+          }
         }
       ]
     }

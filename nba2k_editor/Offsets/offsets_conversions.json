@@ -1,0 +1,21 @@
+[
+  {
+    "source": {
+      "canonical_category": "Attributes",
+      "normalized_name": "AGILITY",
+      "display_name": "Agility"
+    },
+    "targets": [
+      {
+        "canonical_category": "Attributes",
+        "normalized_name": "ACCELERATION",
+        "display_name": "ACCELERATION"
+      },
+      {
+        "canonical_category": "Attributes",
+        "normalized_name": "LATERALQUICKNESS",
+        "display_name": "LATERAL_QUICKNESS"
+      }
+    ]
+  }
+]

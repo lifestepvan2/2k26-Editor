@@ -30,7 +30,7 @@
     "Team Pricing": "Teams",
     "Team Uniform": "Teams",
     "Teams": "Teams",
-    "Team History": "Teams",
+    "Team History": "Team History",
     "History": "History",
     "Career": "Career Stats",
     "Career Stats": "Career Stats",
@@ -63,10 +63,58 @@
     "Single Game (Regular)/Record Stats": "NBA Records"
   },
   "versions": {
+    "2K22": {
+      "game_info": {
+        "executable": "NBA2K22.exe",
+        "version": "2K22"
+      },
+      "base_pointers": {}
+    },
+    "2K23": {
+      "game_info": {
+        "executable": "NBA2K23.exe",
+        "version": "2K23"
+      },
+      "base_pointers": {}
+    },
+    "2K24": {
+      "game_info": {
+        "executable": "NBA2K24.exe",
+        "version": "2K24"
+      },
+      "base_pointers": {}
+    },
+    "2K25": {
+      "game_info": {
+        "executable": "NBA2K25.exe",
+        "version": "2K25",
+        "playerSize": 1096,
+        "teamSize": 5664
+      },
+      "base_pointers": {
+        "Player": {
+          "address": 132504968,
+          "chain": []
+        },
+        "Team": {
+          "address": 132505568,
+          "chain": []
+        }
+      }
+    },
     "2K26": {
       "game_info": {
         "executable": "NBA2K26.exe",
-        "version": "2026-02-16"
+        "version": "2026-02-21",
+        "playerSize": 1176,
+        "coachSize": 432,
+        "teamSize": 5672,
+        "stadiumSize": 4792,
+        "staffSize": 432,
+        "career_statsSize": 64,
+        "historySize": 168,
+        "hall_of_fameSize": 108,
+        "jerseySize": 368
       },
       "base_pointers": {
         "Player": {
