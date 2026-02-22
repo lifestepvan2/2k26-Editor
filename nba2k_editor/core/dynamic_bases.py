@@ -182,6 +182,53 @@ def _find_all(data: bytes, pattern: bytes) -> Iterable[int]:
     yield from _shared_find_all(data, pattern, step=2)
 
 
+def _read_u64(handle: int, address: int) -> int | None:
+    """Read a little-endian uint64 from an absolute address. Returns None on failure."""
+    data = _read_memory(handle, address, 8)
+    if not data or len(data) < 8:
+        return None
+    return int.from_bytes(data[:8], byteorder="little", signed=False)
+
+
+def _read_wstring(handle: int, address: int, max_chars: int = 24) -> str:
+    """Read a UTF-16LE zero-terminated string from an absolute address."""
+    buf = _read_memory(handle, address, max(1, max_chars) * 2)
+    if not buf:
+        return ""
+    try:
+        text = buf.decode("utf-16le", errors="ignore")
+    except Exception:
+        return ""
+    return text.split("\x00", 1)[0].strip()
+
+
+def _verify_player_base(
+    handle: int,
+    base: int,
+    stride: int,
+    first_offset: int,
+    last_offset: int,
+    targets: list[Tuple[str, str]],
+    window: int = 20,
+) -> int:
+    """
+    Read the first *window* records from *base* and count how many target
+    (first, last) pairs appear anywhere in that window.
+    Returns the number of confirmed matches (0 = base is wrong).
+    """
+    expected = {(f.lower(), l.lower()) for f, l in targets}
+    found: set[tuple[str, str]] = set()
+    for i in range(window):
+        addr = base + i * stride
+        last = _read_wstring(handle, addr + last_offset, 24)
+        first = _read_wstring(handle, addr + first_offset, 24)
+        if (first.lower(), last.lower()) in expected:
+            found.add((first.lower(), last.lower()))
+        if len(found) == len(expected):
+            break
+    return len(found)
+
+
 def _scan_player_names(
     handle: int,
     stride: int,
@@ -455,42 +502,113 @@ def find_dynamic_bases(
     skip_player_bases = {int(player_base_hint)} if player_base_hint else set()
     skip_team_bases = {int(team_base_hint)} if team_base_hint else set()
     start_ts = time.time()
+    # Result variables — initialised here so they're always in scope for report building.
+    player_hits: list[dict] = []
+    player_base_votes: list[int] = []
+    top_player: list[tuple[int, int]] = []
+    top_player_all: list[tuple[int, int]] = []
+    top_team: list[tuple[int, int]] = []
+    top_team_all: list[tuple[int, int]] = []
     try:
-        # Player scan (hinted window first, then full if no candidates)
-        p_ranges: list[tuple[int, int]] = []
-        if exe_base:
-            p_ranges.append((max(0, int(exe_base) - max(0x10000, search_window)), int(exe_base)))
-            p_ranges.append((int(exe_base), int(exe_base) + max(0x20000, search_window)))
-        if player_base_hint:
-            base_hint = int(player_base_hint)
-            p_ranges.append((max(0, base_hint - max(0x10000, search_window)), base_hint))
-            p_ranges.append((base_hint, base_hint + max(0x20000, search_window)))
-        # Fall back to scanning above 4GB to avoid slow low-address sweeps.
-        p_ranges.append((0x100000000, 0x7FFFFFFFFFFF))
+        # ------------------------------------------------------------------
+        # Fast path: dereference the known slot pointers from the module.
+        # player_base_hint / team_base_hint are already absolute addresses
+        # of the in-module QWORD slots (module_base + RVA).  One read gives
+        # us the live table base directly — no scanning needed.
+        # ------------------------------------------------------------------
+        _skip_scan = False
+        if player_base_hint and exe_base:
+            raw = _read_u64(handle, int(player_base_hint))
+            if raw and raw > int(exe_base):
+                # Confirm by checking for at least one target name in first 20 records.
+                n = _verify_player_base(handle, raw, stride, first_offset, last_offset, targets)
+                if n > 0:
+                    bases["Player"] = raw
+                    report["player_fast_path"] = {"slot": f"0x{int(player_base_hint):X}", "base": f"0x{raw:X}", "verified_hits": n}
 
-        # Team scan (hinted window first, then full)
-        t_ranges: list[tuple[int, int]] = []
-        if exe_base:
-            t_ranges.append((max(0, int(exe_base) - max(0x10000, search_window)), int(exe_base)))
-            t_ranges.append((int(exe_base), int(exe_base) + max(0x20000, search_window)))
-        if team_base_hint:
-            base_hint = int(team_base_hint)
-            back_low = max(0, base_hint - max(0x10000, search_window))
-            fwd_high = base_hint + max(0x20000, search_window)
-            t_ranges.append((back_low, base_hint))
-            t_ranges.append((base_hint, fwd_high))
-        t_ranges.append((0x100000000, 0x7FFFFFFFFFFF))
-        player_hits: list[dict] = []
-        player_base_votes: list[int] = []
-        top_player: list[tuple[int, int]] = []
-        top_player_all: list[tuple[int, int]] = []
-        top_team: list[tuple[int, int]] = []
-        top_team_all: list[tuple[int, int]] = []
+        if team_base_hint and exe_base:
+            raw = _read_u64(handle, int(team_base_hint))
+            if raw and raw > int(exe_base):
+                bases["Team"] = raw
+                report["team_fast_path"] = {"slot": f"0x{int(team_base_hint):X}", "base": f"0x{raw:X}"}
 
-        if run_parallel:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                fut_player = executor.submit(
-                    _scan_players_with_ranges,
+        # If both resolved via fast path, skip the expensive scans entirely.
+        if "Player" in bases and "Team" in bases:
+            report["method"] = "static_slot_dereference"
+            _skip_scan = True
+
+        if not _skip_scan:
+            # Player scan (hinted window first, then full if no candidates)
+            p_ranges: list[tuple[int, int]] = []
+            if exe_base:
+                p_ranges.append((max(0, int(exe_base) - max(0x10000, search_window)), int(exe_base)))
+                p_ranges.append((int(exe_base), int(exe_base) + max(0x20000, search_window)))
+            if player_base_hint:
+                base_hint = int(player_base_hint)
+                p_ranges.append((max(0, base_hint - max(0x10000, search_window)), base_hint))
+                p_ranges.append((base_hint, base_hint + max(0x20000, search_window)))
+            # Fall back to scanning above 4GB to avoid slow low-address sweeps.
+            p_ranges.append((0x100000000, 0x7FFFFFFFFFFF))
+
+            # Team scan (hinted window first, then full)
+            t_ranges: list[tuple[int, int]] = []
+            if exe_base:
+                t_ranges.append((max(0, int(exe_base) - max(0x10000, search_window)), int(exe_base)))
+                t_ranges.append((int(exe_base), int(exe_base) + max(0x20000, search_window)))
+            if team_base_hint:
+                base_hint = int(team_base_hint)
+                back_low = max(0, base_hint - max(0x10000, search_window))
+                fwd_high = base_hint + max(0x20000, search_window)
+                t_ranges.append((back_low, base_hint))
+                t_ranges.append((base_hint, fwd_high))
+            t_ranges.append((0x100000000, 0x7FFFFFFFFFFF))
+
+            if run_parallel:
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    fut_player = executor.submit(
+                        _scan_players_with_ranges,
+                        handle,
+                        stride,
+                        first_offset,
+                        last_offset,
+                        targets,
+                        p_ranges,
+                        vote_break_threshold=151,
+                        stop_on_first_hit=True,
+                        max_workers=4,
+                        skip_bases=skip_player_bases,
+                    )
+                    fut_team = executor.submit(
+                        _scan_teams_with_ranges,
+                        handle,
+                        t_stride,
+                        team_name_offset,
+                        team_name_length,
+                        teams,
+                        t_ranges,
+                        max_workers=4,
+                        skip_bases=skip_team_bases,
+                    )
+                    team_candidates = fut_team.result()
+                    top_team_all = _summarize_candidates(team_candidates)
+                    top_team = _summarize_candidates(team_candidates, skip_team_bases) if skip_team_bases else top_team_all
+                    player_hits, player_base_votes = fut_player.result()
+                    top_player_all = _summarize_candidates(player_base_votes)
+                    top_player = _summarize_candidates(player_base_votes, skip_player_bases) if skip_player_bases else top_player_all
+            else:
+                team_candidates = _scan_teams_with_ranges(
+                    handle,
+                    t_stride,
+                    team_name_offset,
+                    team_name_length,
+                    teams,
+                    t_ranges,
+                    max_workers=4,
+                    skip_bases=skip_team_bases,
+                )
+                top_team_all = _summarize_candidates(team_candidates)
+                top_team = _summarize_candidates(team_candidates, skip_team_bases) if skip_team_bases else top_team_all
+                player_hits, player_base_votes = _scan_players_with_ranges(
                     handle,
                     stride,
                     first_offset,
@@ -502,54 +620,46 @@ def find_dynamic_bases(
                     max_workers=4,
                     skip_bases=skip_player_bases,
                 )
-                fut_team = executor.submit(
-                    _scan_teams_with_ranges,
-                    handle,
-                    t_stride,
-                    team_name_offset,
-                    team_name_length,
-                    teams,
-                    t_ranges,
-                    max_workers=4,
-                    skip_bases=skip_team_bases,
-                )
-                team_candidates = fut_team.result()
-                top_team_all = _summarize_candidates(team_candidates)
-                top_team = _summarize_candidates(team_candidates, skip_team_bases) if skip_team_bases else top_team_all
-                player_hits: list[dict] = []
-                player_base_votes: list[int] = []
-                top_player: list[tuple[int, int]] = []
-                top_player_all: list[tuple[int, int]] = []
-                player_hits, player_base_votes = fut_player.result()
                 top_player_all = _summarize_candidates(player_base_votes)
                 top_player = _summarize_candidates(player_base_votes, skip_player_bases) if skip_player_bases else top_player_all
-        else:
-            team_candidates = _scan_teams_with_ranges(
-                handle,
-                t_stride,
-                team_name_offset,
-                team_name_length,
-                teams,
-                t_ranges,
-                max_workers=4,
-                skip_bases=skip_team_bases,
+
+        # ------------------------------------------------------------------
+        # Accept player base — handle is still open here for window verify.
+        # Runs regardless of whether fast path succeeded so that a partial
+        # fast-path result (e.g. team found but not player) still triggers
+        # the scan acceptance for the missing half.
+        # ------------------------------------------------------------------
+        chosen_player = None
+        if top_player and top_player[0][1] >= min_player_votes:
+            chosen_player = top_player[0]
+        elif top_player_all and top_player_all[0][1] >= min_player_votes:
+            chosen_player = top_player_all[0]
+        elif top_player_all and "Player" not in bases:
+            # Votes below threshold (names exist in multiple memory copies,
+            # fragmenting votes). Verify structurally: read the first 20
+            # records from the top candidate and count actual name matches.
+            candidate_addr, candidate_votes = top_player_all[0]
+            verified = _verify_player_base(
+                handle, candidate_addr, stride, first_offset, last_offset, targets
             )
-            top_team_all = _summarize_candidates(team_candidates)
-            top_team = _summarize_candidates(team_candidates, skip_team_bases) if skip_team_bases else top_team_all
-            player_hits, player_base_votes = _scan_players_with_ranges(
-                handle,
-                stride,
-                first_offset,
-                last_offset,
-                targets,
-                p_ranges,
-                vote_break_threshold=151,
-                stop_on_first_hit=True,
-                max_workers=4,
-                skip_bases=skip_player_bases,
-            )
-            top_player_all = _summarize_candidates(player_base_votes)
-            top_player = _summarize_candidates(player_base_votes, skip_player_bases) if skip_player_bases else top_player_all
+            if verified >= max(1, len(targets)):
+                chosen_player = (candidate_addr, candidate_votes)
+                report["player_window_verified"] = {
+                    "address": f"0x{candidate_addr:X}",
+                    "votes": candidate_votes,
+                    "verified_hits": verified,
+                }
+            else:
+                report["player_rejected_votes"] = candidate_votes
+                report["player_rejected_verified"] = verified
+        elif top_player_all:
+            report["player_rejected_votes"] = top_player_all[0][1]
+        if chosen_player and "Player" not in bases:
+            bases["Player"] = int(chosen_player[0])
+
+        chosen_team = top_team[0] if top_team else (top_team_all[0] if top_team_all else None)
+        if chosen_team and "Team" not in bases:
+            bases["Team"] = int(chosen_team[0])
     finally:
         CloseHandle(handle)
     report["elapsed_sec"] = round(time.time() - start_ts, 3)
@@ -560,18 +670,6 @@ def find_dynamic_bases(
         {"address": f"0x{addr:X}", "votes": votes} for addr, votes in top_player_all
     ]
     report["team_candidates"] = [{"address": f"0x{addr:X}", "votes": votes} for addr, votes in top_team_all]
-    chosen_player = None
-    if top_player and top_player[0][1] >= min_player_votes:
-        chosen_player = top_player[0]
-    elif top_player_all and top_player_all[0][1] >= min_player_votes:
-        chosen_player = top_player_all[0]
-    if chosen_player and "Player" not in bases:
-        bases["Player"] = int(chosen_player[0])
-    elif top_player_all:
-        report["player_rejected_votes"] = top_player_all[0][1]
-    chosen_team = top_team[0] if top_team else (top_team_all[0] if top_team_all else None)
-    if chosen_team and "Team" not in bases:
-        bases["Team"] = int(chosen_team[0])
 
     # If nothing was resolved, fall back to the offsets-file hints so we donÔÇÖt exit empty-handed.
     if not bases and player_base_hint and team_base_hint:
