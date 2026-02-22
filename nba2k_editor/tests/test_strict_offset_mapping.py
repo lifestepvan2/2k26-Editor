@@ -227,22 +227,24 @@ def test_apply_offset_config_rejects_case_variant_base_pointer_key(restore_offse
 
 
 def test_apply_offset_config_rejects_case_variant_size_key(restore_offsets_state) -> None:
+    # Required-pointer size keys must match exactly (case-sensitive).
     payload = _strict_offsets_payload()
     game_info = payload["game_info"]
     assert isinstance(game_info, dict)
-    game_info["HistorySize"] = game_info.pop("historySize")
+    game_info["TeamSize"] = game_info.pop("teamSize")
 
-    with pytest.raises(offsets_mod.OffsetSchemaError, match="historySize"):
+    with pytest.raises(offsets_mod.OffsetSchemaError, match="teamSize"):
         offsets_mod._apply_offset_config(payload)
 
 
 def test_apply_offset_config_fails_when_required_size_missing(restore_offsets_state) -> None:
+    # Deleting a required pointer's size key must raise an error.
     payload = _strict_offsets_payload()
     game_info = payload["game_info"]
     assert isinstance(game_info, dict)
-    del game_info["career_statsSize"]
+    del game_info["playerSize"]
 
-    with pytest.raises(offsets_mod.OffsetSchemaError, match="career_statsSize"):
+    with pytest.raises(offsets_mod.OffsetSchemaError, match="playerSize"):
         offsets_mod._apply_offset_config(payload)
 
 

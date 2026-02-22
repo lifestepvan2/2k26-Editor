@@ -2004,6 +2004,11 @@ def _apply_offset_config(data: dict | None) -> None:
             continue
         if size_key is None:
             continue
+        # Only enforce size-key presence for the core required pointers.
+        # Optional pointers (TeamHistory, NBAHistory, HallOfFame, etc.) may be
+        # declared with addresses before their struct sizes are known.
+        if pointer_key not in REQUIRED_LIVE_BASE_POINTER_KEYS:
+            continue
         size_val = to_int(game_info.get(size_key))
         if size_val <= 0:
             errors.append(f"Missing or invalid game_info '{size_key}' for base pointer '{pointer_key}'.")
