@@ -84,8 +84,8 @@ class FullTeamEditor:
                 scrollX=False,
                 scrollY=False,
             )
-            dpg.add_table_column(width_fixed=True, init_width_or_weight=230)
-            dpg.add_table_column(init_width_or_weight=1.0)
+            dpg.add_table_column(parent=table, width_fixed=True, init_width_or_weight=230)
+            dpg.add_table_column(parent=table, init_width_or_weight=1.0)
             for row, field in enumerate(fields):
                 if not isinstance(field, dict):
                     continue
@@ -147,7 +147,6 @@ class FullTeamEditor:
             max_chars = length if length and length > 0 else byte_length if byte_length > 0 else 64
             control = dpg.add_input_text(
                 width=260,
-                max_chars=max_chars,
                 default_value="",
                 callback=lambda _s, _a, cat=category_name, fname=field_name: self._mark_unsaved(cat, fname),
             )

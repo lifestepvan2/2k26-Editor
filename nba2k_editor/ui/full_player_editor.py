@@ -65,6 +65,7 @@ class FullPlayerEditor:
 
         self.window_tag = dpg.generate_uuid()
         self.tab_bar_tag = dpg.generate_uuid()
+        self._content_pane_tag = dpg.generate_uuid()
 
         with dpg.window(
             label=title,
@@ -74,7 +75,10 @@ class FullPlayerEditor:
             no_collapse=True,
             on_close=self._on_close,
         ):
-            self._build_tabs()
+            # Constrain the tab area so the Save/Close footer is always visible.
+            # height=-55 reserves ~55 px at the bottom of the window for the footer.
+            with dpg.child_window(tag=self._content_pane_tag, height=-55, border=False, no_scrollbar=True):
+                self._build_tabs()
             dpg.add_separator()
             with dpg.group(horizontal=True):
                 dpg.add_button(label="Save", width=100, callback=self._save_all)
@@ -100,7 +104,7 @@ class FullPlayerEditor:
             self.app.show_warning("Full Player Editor", "No player categories available.")
             return
 
-        with dpg.tab_bar(tag=self.tab_bar_tag, parent=self.window_tag):
+        with dpg.tab_bar(tag=self.tab_bar_tag, parent=self._content_pane_tag):
             for cat in ordered:
                 self._build_category_tab(cat, categories_map.get(cat))
 
