@@ -1,45 +1,6 @@
 {
   "Shoes offsets": [
     {
-      "Shoes": [
-        {
-          "normalized_name": "SHOEAWAYCOLORWAY",
-          "display_name": "Shoe Away Colorway",
-          "versions": {
-            "2K26": {
-              "address": 384,
-              "hex": "0x180",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "SHOEHOMECOLORWAY",
-          "display_name": "Shoe Home Colorway",
-          "versions": {
-            "2K26": {
-              "address": 380,
-              "hex": "0x17C",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "SHOELOCKEDVENDOR",
-          "display_name": "Shoe Locked Vendor",
-          "versions": {
-            "2K26": {
-              "address": 379,
-              "hex": "0x17B",
-              "length": 5,
-              "startBit": 2,
-              "type": "Binary"
-            }
-          }
-        }
-      ]
-    },
-    {
       "Shoes Gear": [
         {
           "normalized_name": "MYPLAYERCLOTHESTYPE",
@@ -410,33 +371,6 @@
               "length": 3,
               "startBit": 4,
               "type": "combo"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "Shoes Vitals": [
-        {
-          "normalized_name": "ID",
-          "display_name": "ID",
-          "versions": {
-            "2K26": {
-              "address": 0,
-              "hex": "0x0",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "NAME",
-          "display_name": "Name",
-          "versions": {
-            "2K26": {
-              "address": 16,
-              "hex": "0x10",
-              "length": 80,
-              "type": "WString"
             }
           }
         }

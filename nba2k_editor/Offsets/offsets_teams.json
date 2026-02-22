@@ -1,54 +1,6 @@
 {
   "Teams offsets": [
     {
-      "Team Budget": [
-        {
-          "normalized_name": "ARENAOPERATIONS",
-          "display_name": "Arena Operations",
-          "versions": {
-            "2K26": {
-              "address": 5088,
-              "hex": "0x13E0",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "PLAYERPAYROLL",
-          "display_name": "Player Payroll",
-          "versions": {
-            "2K26": {
-              "address": 5092,
-              "hex": "0x13E4",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "STAFFPAYROLL",
-          "display_name": "Staff Payroll",
-          "versions": {
-            "2K26": {
-              "address": 5100,
-              "hex": "0x13EC",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "TEAMOPERATIONS",
-          "display_name": "Team Operations",
-          "versions": {
-            "2K26": {
-              "address": 5084,
-              "hex": "0x13DC",
-              "type": "Integer"
-            }
-          }
-        }
-      ]
-    },
-    {
       "Team Business": [
         {
           "normalized_name": "ARENAOPERATIONS",
@@ -86,17 +38,6 @@
               "length": 32,
               "startBit": 0,
               "type": "float"
-            }
-          }
-        },
-        {
-          "normalized_name": "CONCESSIONPRICES",
-          "display_name": "Concession Prices",
-          "versions": {
-            "2K26": {
-              "address": 5072,
-              "hex": "0x13D0",
-              "type": "Float"
             }
           }
         },
@@ -175,17 +116,6 @@
               "length": 32,
               "startBit": 0,
               "type": "number"
-            }
-          }
-        },
-        {
-          "normalized_name": "LUXURYBOXPRICES",
-          "display_name": "Luxury Box Prices",
-          "versions": {
-            "2K26": {
-              "address": 5076,
-              "hex": "0x13D4",
-              "type": "Float"
             }
           }
         },
@@ -385,24 +315,6 @@
           }
         },
         {
-          "normalized_name": "TICKET",
-          "display_name": "Team Business - TICKET",
-          "versions": {
-            "2K22,2K23,2K24": {
-              "address": 3992,
-              "hex": "0xF98",
-              "length": 32,
-              "startBit": 0,
-              "type": "float"
-            },
-            "2K26": {
-              "address": 5068,
-              "hex": "0x13CC",
-              "type": "Float"
-            }
-          }
-        },
-        {
           "normalized_name": "TEAMOPERATIONS",
           "display_name": "TEAM_OPERATIONS",
           "versions": {
@@ -429,6 +341,19 @@
           }
         },
         {
+          "normalized_name": "TICKET",
+          "display_name": "TICKET",
+          "versions": {
+            "2K22,2K23,2K24": {
+              "address": 3992,
+              "hex": "0xF98",
+              "length": 32,
+              "startBit": 0,
+              "type": "float"
+            }
+          }
+        },
+        {
           "normalized_name": "UNALLOCATEDFUNDS",
           "display_name": "UNALLOCATED_FUNDS",
           "versions": {
@@ -438,275 +363,6 @@
               "length": 32,
               "startBit": 0,
               "type": "number"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "Team Colors": [
-        {
-          "normalized_name": "COLORMETERSHOT",
-          "display_name": "Shot Meter Color",
-          "versions": {
-            "2K26": {
-              "address": 5156,
-              "hex": "0x1424",
-              "length": 3,
-              "type": "hex_bytes"
-            }
-          }
-        },
-        {
-          "normalized_name": "TEXTDARK",
-          "display_name": "Text Dark",
-          "versions": {
-            "2K26": {
-              "address": 5164,
-              "hex": "0x142C",
-              "length": 3,
-              "type": "hex_bytes"
-            }
-          }
-        },
-        {
-          "normalized_name": "TEXTLIGHT",
-          "display_name": "Text Light",
-          "versions": {
-            "2K26": {
-              "address": 5160,
-              "hex": "0x1428",
-              "length": 3,
-              "type": "hex_bytes"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "Team Info": [
-        {
-          "normalized_name": "DIVISION",
-          "display_name": "Division",
-          "versions": {
-            "2K26": {
-              "address": 5034,
-              "hex": "0x13AA",
-              "length": 5,
-              "startBit": 6,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "FANINTEREST",
-          "display_name": "Fan Interest",
-          "versions": {
-            "2K26": {
-              "address": 5040,
-              "hex": "0x13B0",
-              "type": "Float"
-            }
-          }
-        },
-        {
-          "normalized_name": "GLEAGUETEAMADDRESS",
-          "display_name": "G-League Team Address",
-          "versions": {
-            "2K26": {
-              "address": 4056,
-              "hex": "0xFD8",
-              "type": "team_address_dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "LONGESTLOSSSTREAK",
-          "display_name": "Longest Loss Streak",
-          "versions": {
-            "2K26": {
-              "address": 5018,
-              "hex": "0x139A",
-              "length": 6,
-              "startBit": 7,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "LONGESTWINSTREAK",
-          "display_name": "Longest Win Streak",
-          "versions": {
-            "2K26": {
-              "address": 5018,
-              "hex": "0x139A",
-              "length": 7,
-              "startBit": 0,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "LUXURYTAX",
-          "display_name": "LUXURY_TAX",
-          "versions": {
-            "2K26": {
-              "address": 5131,
-              "hex": "0x140B",
-              "type": "dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "MASCOTSIZE",
-          "display_name": "Mascot Size",
-          "versions": {
-            "2K26": {
-              "address": 4892,
-              "hex": "0x131C",
-              "length": 2,
-              "startBit": 0,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "METROINCOMEM",
-          "display_name": "Metro Income M",
-          "versions": {
-            "2K26": {
-              "address": 5048,
-              "hex": "0x13B8",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "METROPOPULATION",
-          "display_name": "Metro Population",
-          "versions": {
-            "2K26": {
-              "address": 5044,
-              "hex": "0x13B4",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "MLEREMAINING",
-          "display_name": "MLE Remaining",
-          "versions": {
-            "2K26": {
-              "address": 4880,
-              "hex": "0x1310",
-              "length": 24,
-              "startBit": 3,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "MLETYPE",
-          "display_name": "MLE Type",
-          "versions": {
-            "2K26": {
-              "address": 4880,
-              "hex": "0x1310",
-              "length": 2,
-              "startBit": 1,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "NONBIRDEXCEPTIONAVAILABLE",
-          "display_name": "Non Bird Exception Available",
-          "versions": {
-            "2K26": {
-              "address": 4880,
-              "hex": "0x1310",
-              "length": 1,
-              "startBit": 0,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "PROMOTIONS",
-          "display_name": "Promotions",
-          "versions": {
-            "2K26": {
-              "address": 5080,
-              "hex": "0x13D8",
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "RIVAL1TEAM",
-          "display_name": "Rival 1 Team",
-          "versions": {
-            "2K26": {
-              "address": 4128,
-              "hex": "0x1020",
-              "type": "team_address_dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "RIVAL2TEAM",
-          "display_name": "Rival 2 Team",
-          "versions": {
-            "2K26": {
-              "address": 4136,
-              "hex": "0x1028",
-              "type": "team_address_dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "RIVAL3TEAM",
-          "display_name": "Rival 3 Team",
-          "versions": {
-            "2K26": {
-              "address": 4144,
-              "hex": "0x1030",
-              "type": "team_address_dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "STATE",
-          "display_name": "State",
-          "versions": {
-            "2K26": {
-              "address": 4892,
-              "hex": "0x131C",
-              "length": 2,
-              "startBit": 4,
-              "type": "Integer"
-            }
-          }
-        },
-        {
-          "normalized_name": "TEAMCHEMISTRY",
-          "display_name": "Team Chemistry",
-          "versions": {
-            "2K26": {
-              "address": 4852,
-              "hex": "0x12F4",
-              "type": "Float"
-            }
-          }
-        },
-        {
-          "normalized_name": "TVHOMES",
-          "display_name": "Tv Homes",
-          "versions": {
-            "2K26": {
-              "address": 5052,
-              "hex": "0x13BC",
-              "type": "Integer"
             }
           }
         }
@@ -2510,32 +2166,6 @@
       ]
     },
     {
-      "Team Uniform": [
-        {
-          "normalized_name": "PRACTICEJERSEYAWAY",
-          "display_name": "Practice Jersey Away",
-          "versions": {
-            "2K26": {
-              "address": 4032,
-              "hex": "0xFC0",
-              "type": "uniform_dropdown"
-            }
-          }
-        },
-        {
-          "normalized_name": "PRACTICEJERSEYHOME",
-          "display_name": "Practice Jersey Home",
-          "versions": {
-            "2K26": {
-              "address": 4024,
-              "hex": "0xFB8",
-              "type": "uniform_dropdown"
-            }
-          }
-        }
-      ]
-    },
-    {
       "Team Vitals": [
         {
           "normalized_name": "2NDLOGO",
@@ -2615,7 +2245,7 @@
         },
         {
           "normalized_name": "ARENANAME",
-          "display_name": "Arena Name",
+          "display_name": "ARENANAME",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 312,
@@ -2623,12 +2253,6 @@
               "length": 480,
               "startBit": 0,
               "type": "string"
-            },
-            "2K26": {
-              "address": 344,
-              "hex": "0x158",
-              "length": 36,
-              "type": "WString"
             }
           }
         },
@@ -2711,18 +2335,6 @@
           }
         },
         {
-          "normalized_name": "CITYSHORTNAME",
-          "display_name": "City Short Name",
-          "versions": {
-            "2K26": {
-              "address": 824,
-              "hex": "0x338",
-              "length": 7,
-              "type": "WString"
-            }
-          }
-        },
-        {
           "normalized_name": "CLASSICTEAMYEAR",
           "display_name": "CLASSIC_TEAM_YEAR",
           "versions": {
@@ -2737,7 +2349,7 @@
         },
         {
           "normalized_name": "CROWDID",
-          "display_name": "Crowd Id",
+          "display_name": "CROWD_ID",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 3956,
@@ -2745,11 +2357,6 @@
               "length": 16,
               "startBit": 0,
               "type": "number"
-            },
-            "2K26": {
-              "address": 5028,
-              "hex": "0x13A4",
-              "type": "Integer"
             }
           }
         },
@@ -2851,11 +2458,10 @@
         },
         {
           "normalized_name": "LEDID",
-          "display_name": "LED Id",
+          "display_name": "LED ID",
           "versions": {
             "2K26": {
               "address": 3418,
-              "hex": "0xD5A",
               "length": 24,
               "type": "String"
             }
@@ -2866,10 +2472,9 @@
           "display_name": "Logo 1",
           "versions": {
             "2K26": {
-              "address": 482,
-              "hex": "0x1E2",
-              "length": 256,
-              "type": "String"
+              "address": 406,
+              "length": 36,
+              "type": "WString"
             }
           }
         },
@@ -2891,54 +2496,6 @@
             "2K26": {
               "address": 1114,
               "length": 36,
-              "type": "String"
-            }
-          }
-        },
-        {
-          "normalized_name": "LOGO4",
-          "display_name": "Logo 4",
-          "versions": {
-            "2K26": {
-              "address": 1370,
-              "hex": "0x55A",
-              "length": 256,
-              "type": "String"
-            }
-          }
-        },
-        {
-          "normalized_name": "LOGO5",
-          "display_name": "Logo 5",
-          "versions": {
-            "2K26": {
-              "address": 1626,
-              "hex": "0x65A",
-              "length": 256,
-              "type": "String"
-            }
-          }
-        },
-        {
-          "normalized_name": "LOGO6",
-          "display_name": "Logo 6",
-          "versions": {
-            "2K26": {
-              "address": 1882,
-              "hex": "0x75A",
-              "length": 256,
-              "type": "String"
-            }
-          }
-        },
-        {
-          "normalized_name": "LOGO7",
-          "display_name": "Logo 7",
-          "versions": {
-            "2K26": {
-              "address": 2138,
-              "hex": "0x85A",
-              "length": 256,
               "type": "String"
             }
           }
@@ -2997,7 +2554,7 @@
         },
         {
           "normalized_name": "MANTRA",
-          "display_name": "Mantra",
+          "display_name": "MANTRA",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 2860,
@@ -3005,12 +2562,6 @@
               "length": 544,
               "startBit": 0,
               "type": "string"
-            },
-            "2K26": {
-              "address": 3674,
-              "hex": "0xE5A",
-              "length": 68,
-              "type": "WString"
             }
           }
         },
@@ -3137,17 +2688,6 @@
           }
         },
         {
-          "normalized_name": "PASOUNDLD",
-          "display_name": "Pa Sound ld",
-          "versions": {
-            "2K26": {
-              "address": 4886,
-              "hex": "0x1316",
-              "type": "Integer"
-            }
-          }
-        },
-        {
           "normalized_name": "PASOUNDID",
           "display_name": "PA_SOUND_ID",
           "versions": {
@@ -3157,17 +2697,6 @@
               "length": 16,
               "startBit": 0,
               "type": "number"
-            }
-          }
-        },
-        {
-          "normalized_name": "PLAYBYPLAYSOUNDLD",
-          "display_name": "Play By Play Sound ld",
-          "versions": {
-            "2K26": {
-              "address": 4884,
-              "hex": "0x1314",
-              "type": "Integer"
             }
           }
         },
@@ -3289,7 +2818,7 @@
         },
         {
           "normalized_name": "STADIUM",
-          "display_name": "Stadium",
+          "display_name": "STADIUM",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 3192,
@@ -3297,11 +2826,6 @@
               "length": 8,
               "startBit": 0,
               "type": "combo"
-            },
-            "2K26": {
-              "address": 4040,
-              "hex": "0xFC8",
-              "type": "stadium_address_dropdown"
             }
           }
         },
@@ -3445,7 +2969,7 @@
         },
         {
           "normalized_name": "UNIQUEID",
-          "display_name": "Unique ID",
+          "display_name": "UNIQUEID",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 3240,
@@ -3453,17 +2977,12 @@
               "length": 16,
               "startBit": 0,
               "type": "number"
-            },
-            "2K26": {
-              "address": 4104,
-              "hex": "0x1008",
-              "type": "Integer"
             }
           }
         },
         {
           "normalized_name": "UNIQUESIGNATURECRC32B",
-          "display_name": "Unique Signature CRC32B",
+          "display_name": "UNIQUE_SIGNATURE_CRC32B",
           "versions": {
             "2K22,2K23,2K24": {
               "address": 3232,
@@ -3471,12 +2990,6 @@
               "length": 32,
               "startBit": 0,
               "type": "number"
-            },
-            "2K26": {
-              "address": 4096,
-              "hex": "0x1000",
-              "length": 4,
-              "type": "hex_bytes"
             }
           }
         },

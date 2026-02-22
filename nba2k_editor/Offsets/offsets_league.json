@@ -105,24 +105,19 @@
     "2K26": {
       "game_info": {
         "executable": "NBA2K26.exe",
-        "version": "2026-02-21",
+        "version": "2026-02-22",
         "playerSize": 1176,
-        "coachSize": 432,
-        "teamSize": 5672,
-        "stadiumSize": 4792,
         "staffSize": 432,
-        "career_statsSize": 64,
-        "historySize": 168,
-        "hall_of_fameSize": 108,
-        "jerseySize": 368
+        "teamSize": 5672,
+        "stadiumSize": 4792
       },
       "base_pointers": {
         "Player": {
-          "address": 130990776,
+          "address": 131015096,
           "chain": []
         },
         "Team": {
-          "address": 130991376,
+          "address": 131015696,
           "chain": []
         },
         "Staff": {
@@ -130,35 +125,23 @@
           "chain": []
         },
         "Stadium": {
-          "address": 130991160,
+          "address": 130992024,
+          "chain": []
+        },
+        "TeamHistory": {
+          "address": 5336537040,
+          "chain": []
+        },
+        "NBAHistory": {
+          "address": 5347512576,
+          "chain": []
+        },
+        "HallOfFame": {
+          "address": 5348811252,
           "chain": []
         },
         "Cursor": {
           "address": 0,
-          "chain": []
-        },
-        "TeamHistory": {
-          "address": 130991376,
-          "chain": []
-        },
-        "NBAHistory": {
-          "address": 130991424,
-          "chain": []
-        },
-        "HallOfFame": {
-          "address": 130991424,
-          "chain": []
-        },
-        "History": {
-          "address": 130991424,
-          "chain": []
-        },
-        "Jersey": {
-          "address": 130991400,
-          "chain": []
-        },
-        "career_stats": {
-          "address": 130990680,
           "chain": []
         }
       }

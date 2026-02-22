@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "timestamp_utc": "2026-02-21T11:23:57.135674Z",
+    "pid": 40164,
+    "process": "NBA2K26.exe",
+    "source": "AGENTS.md (Jan 27 2026 patch)",
+    "elapsed_sec": 2.653
+  },
+  "roster": {
+    "signature_address": {
+      "abs": "0x147CF1B10",
+      "rva": 131013392,
+      "rva_hex": "0x7CF1B10"
+    },
+    "pointer_address": {
+      "abs": "0x147CF1A30",
+      "rva": 131013168,
+      "rva_hex": "0x7CF1A30"
+    },
+    "base": {
+      "abs": "0x2AEF70050"
+    }
+  },
+  "draft_class": {
+    "nba": {
+      "signature_address": null,
+      "pointer_address": {
+        "abs": "0x146BBFB90",
+        "rva": 112982928,
+        "rva_hex": "0x6BBFB90"
+      },
+      "base": {
+        "abs": "0x0"
+      },
+      "source": "fallback"
+    },
+    "wnba": {
+      "signature_address": null,
+      "pointer_address": {
+        "abs": "0x146BBFB90",
+        "rva": 112982928,
+        "rva_hex": "0x6BBFB90"
+      },
+      "base": {
+        "abs": "0x0"
+      },
+      "source": "fallback"
+    }
+  },
+  "static_slots": {
+    "player_slot_address": {
+      "abs": "0x147CEC2B8",
+      "rva": 130990776,
+      "rva_hex": "0x7CEC2B8"
+    },
+    "player_base": {
+      "abs": "0x0"
+    },
+    "team_slot_address": {
+      "abs": "0x147CEC510",
+      "rva": 130991376,
+      "rva_hex": "0x7CEC510"
+    },
+    "team_base": {
+      "abs": "0x0"
+    }
+  },
+  "derived": {
+    "coach": {
+      "begin": {
+        "abs": "0x2AF99D940"
+      },
+      "end": {
+        "abs": "0x2AFA9FFA0"
+      },
+      "stride": 432,
+      "count": 2450
+    },
+    "team_history": {
+      "begin": {
+        "abs": "0x2AF7717D0"
+      },
+      "end": {
+        "abs": "0x2AF95FD98"
+      },
+      "stride": 168,
+      "count": 12053
+    },
+    "nba_history_root": {
+      "base": {
+        "abs": "0x2B01E9110"
+      },
+      "stride": 168
+    },
+    "hall_of_fame": {
+      "begin": {
+        "abs": "0x2B0326204"
+      },
+      "end": {
+        "abs": "0x2B0334C98"
+      },
+      "stride": 108,
+      "count": 556
+    },
+    "name_list": {
+      "begin": {
+        "abs": "0x2AF95FD98"
+      },
+      "end": {
+        "abs": "0x2AF96B660"
+      },
+      "stride": 72,
+      "count": 657
+    },
+    "career_stats_next_index_offset": 18
+  },
+  "strides": {
+    "player": 1176,
+    "team": 5672,
+    "jersey": 368,
+    "stadium": 4792,
+    "coach": 432,
+    "career_stats": 64,
+    "history": 168,
+    "hall_of_fame": 108,
+    "name_list": 72
+  }
+}
