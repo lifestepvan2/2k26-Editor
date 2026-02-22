@@ -12,6 +12,9 @@ Pillow
 # openpyxl: required for the Excel import/export screen (nba2k26_editor/importing/).
 openpyxl
 
+# PyYAML: for patch_logos.yaml config
+PyYAML
+
 # ── Dev / offset-build scripts (not required at app runtime) ─────────────────
 # pandas: used by nba2k26_editor/Offsets/build_mega_offsets.py only.
 pandas

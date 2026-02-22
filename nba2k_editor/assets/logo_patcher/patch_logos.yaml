@@ -1,0 +1,8 @@
+# patch_logos.yaml
+# User-specific config for NBA 2K26 logo patcher
+
+input_dir: "C:/Work/MyRepos/05_2K26/2k26-Editor/nba2k_editor/assets"
+game_dir: "D:/SteamLibrary/steamapps/common/NBA 2K26"
+texconv: null  # Optional: set to override texconv.exe path
+backup: true   # Default for --backup
+skip_verify: true  # Default for --skip-verify
