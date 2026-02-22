@@ -6,6 +6,9 @@ dearpygui
 # psutil: more reliable game-process discovery (memory layer + dynamic bases).
 psutil
 
+# Pillow: image processing for the logo-patcher asset pipeline (PNG resize, format conversion).
+Pillow
+
 # openpyxl: required for the Excel import/export screen (nba2k26_editor/importing/).
 openpyxl
 
